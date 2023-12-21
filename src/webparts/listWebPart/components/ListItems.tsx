@@ -24,16 +24,23 @@ import { EditItems } from "./EditItem";
 import * as moment from "moment";
 import { SPFx, spfi } from "@pnp/sp";
 import { IDropdownOption } from "@fluentui/react/lib/Dropdown";
-import { mergeStyleSets, type IComboBoxOption } from "@fluentui/react";
-import { Toggle } from '@fluentui/react/lib/Toggle';
+import {
+  mergeStyleSets,
+  type IComboBoxOption,
+  TextField,
+} from "@fluentui/react";
+import { Toggle } from "@fluentui/react/lib/Toggle";
 
 const styles = mergeStyleSets({
   toggleBox: {
-    display: 'flex',
+    display: "flex",
+  },
+  toggle: {
+    marginLeft: "25px",
   },
   tagsCell: {
     display: "flex",
-    flexWrap: 'wrap'
+    flexWrap: "wrap",
   },
   tag: {
     backgroundColor: "lightBlue",
@@ -48,10 +55,10 @@ const styles = mergeStyleSets({
     borderRadius: "3px",
     textAlign: "center",
     width: "fit-content",
-    padding: "3px",
+    padding: "5px",
   },
   new: {
-    backgroundColor: "grey",
+    backgroundColor: "#bec2bf",
   },
   inProgress: {
     backgroundColor: "#c2d99c",
@@ -76,7 +83,6 @@ export interface IEditItemProps {
   isRequestManager: boolean;
   currentItem: IRequest | undefined;
 }
-
 
 const columnHeaders = [
   { columnKey: "buttons", label: "" },
@@ -114,7 +120,6 @@ const columns: TableColumnDefinition<IRequest>[] = [
   }),
 ];
 
-
 export const ListItems = (
   props: IListItemsProps
 ): React.ReactElement<unknown, React.JSXElementConstructor<unknown>> => {
@@ -122,7 +127,8 @@ export const ListItems = (
     useBoolean(false);
 
   const [currentItem, setCurrentItem] = React.useState<IRequest>();
- 
+  const [tagsSearch, setTagsSearch] = React.useState<string>();
+
   function edit(item: IRequest): void {
     if (item.Status !== "New") {
       return alert("Can only edit request in status new");
@@ -192,52 +198,81 @@ export const ListItems = (
     sortDirection: getSortDirection(columnId),
   });
 
-  const statusNew = (event: React.MouseEvent<HTMLElement>, checked?: boolean): void =>  {
-    const arr: string[] = [...props.selectedStatus]
+  const statusNew = (
+    event: React.MouseEvent<HTMLElement>,
+    checked?: boolean
+  ): void => {
+    const arr: string[] = [...props.selectedStatus];
     if (checked) {
-      arr.push('New')
+      arr.push("New");
     } else {
-      arr.splice(props.selectedStatus.indexOf('New'), 1)
+      arr.splice(props.selectedStatus.indexOf("New"), 1);
     }
-    props.setSelectedStatus(arr)
-  }
-  const statusInProgress = (event: React.MouseEvent<HTMLElement>, checked?: boolean): void =>  {
-    const arr: string[] = [...props.selectedStatus]
+    props.setSelectedStatus(arr);
+  };
+  const statusInProgress = (
+    event: React.MouseEvent<HTMLElement>,
+    checked?: boolean
+  ): void => {
+    const arr: string[] = [...props.selectedStatus];
     if (checked) {
-      arr.push('In Progress')
+      arr.push("In Progress");
     } else {
-      arr.splice(props.selectedStatus.indexOf('In Progress'), 1)
+      arr.splice(props.selectedStatus.indexOf("In Progress"), 1);
     }
-    props.setSelectedStatus(arr)
-  }
-  const statusApproved = (event: React.MouseEvent<HTMLElement>, checked?: boolean): void =>  {
-    const arr: string[] = [...props.selectedStatus]
+    props.setSelectedStatus(arr);
+  };
+  const statusApproved = (
+    event: React.MouseEvent<HTMLElement>,
+    checked?: boolean
+  ): void => {
+    const arr: string[] = [...props.selectedStatus];
     if (checked) {
-      arr.push('Approved')
+      arr.push("Approved");
     } else {
-      arr.splice(props.selectedStatus.indexOf('Approved'), 1)
+      arr.splice(props.selectedStatus.indexOf("Approved"), 1);
     }
-    props.setSelectedStatus(arr)
-  }
-  const statusRejected = (event: React.MouseEvent<HTMLElement>, checked?: boolean): void =>  {
-    const arr: string[] = [...props.selectedStatus]
+    props.setSelectedStatus(arr);
+  };
+  const statusRejected = (
+    event: React.MouseEvent<HTMLElement>,
+    checked?: boolean
+  ): void => {
+    const arr: string[] = [...props.selectedStatus];
     if (checked) {
-      arr.push('Rejected')
+      arr.push("Rejected");
     } else {
-      arr.splice(props.selectedStatus.indexOf('Rejected'), 1)
+      arr.splice(props.selectedStatus.indexOf("Rejected"), 1);
     }
-    props.setSelectedStatus(arr)
-  }
+    props.setSelectedStatus(arr);
+  };
 
   const rows = sort(getRows());
   return (
     <>
-    <div className={styles.toggleBox}>
-      <Toggle label="New" defaultChecked onChange={statusNew} />
-      <Toggle label="In Progress" defaultChecked onChange={statusInProgress} />
-      <Toggle label="Rejected" defaultChecked onChange={statusRejected} />
-      <Toggle label="Approved" defaultChecked onChange={statusApproved} />
-    </div>
+      <div className={styles.toggleBox}>
+        <div className={styles.toggle}>
+          <Toggle label="New" defaultChecked onChange={statusNew} />
+        </div>
+        <div className={styles.toggle}>
+          <Toggle
+            label="In Progress"
+            defaultChecked
+            onChange={statusInProgress}
+          />
+        </div>
+        <div className={styles.toggle}>
+          <Toggle label="Rejected" defaultChecked onChange={statusRejected} />
+        </div>
+        <div className={styles.toggle}>
+          <Toggle label="Approved" defaultChecked onChange={statusApproved} />
+        </div>
+      </div>
+      <TextField
+        label="Tags"
+        placeholder="search"
+        onChange={(e, value) => setTagsSearch(value)}
+      />
       <Table arial-label="Default table">
         <TableHeader>
           <TableRow>
@@ -252,80 +287,88 @@ export const ListItems = (
           </TableRow>
         </TableHeader>
         <TableBody>
-          {rows.map(({ item }) => (
-            props.selectedStatus.indexOf(item.Status) !== -1 ?
-             <TableRow key={item.Id}>
-              <TableCell>
-                <Button
-                  onClick={() => deleteItemFunction(item)}
-                  icon={<DeleteRegular />}
-                />
-                <Button
-                  onClick={() => {
-                    edit(item);
-                  }}
-                  icon={<EditRegular />}
-                />
-              </TableCell>
-              <TableCell>{item.Title}</TableCell>
-              <TableCell>
-                {
-                  <div
-                    className={
-                      `${item.Status === "New"
-                        ? styles.new
-                        : item.Status === "In Progress"
-                        ? styles.inProgress
-                        : item.Status === "Rejected"
-                        ? styles.rejected
-                        : styles.approved} ${styles.status}`
-                    }
-                  >
-                    {item.Status}
-                  </div>
-                }
-              </TableCell>
-              <TableCell>
-                {props.users.map((user) => {
-                  if (user.Id === item.Assigned_x0020_ManagerId) {
-                    return user.Title;
+          {rows.map(({ item }) =>
+            (!tagsSearch ||
+            item.Tags.filter(
+              (tag: { Label: string }) =>
+                tag.Label.toLowerCase().indexOf(tagsSearch.toLowerCase()) !== -1
+            ).length !== 0) &&
+            props.selectedStatus.indexOf(item.Status) !== -1 ? (
+              <TableRow key={item.Id}>
+                <TableCell>
+                  <Button
+                    onClick={() => deleteItemFunction(item)}
+                    icon={<DeleteRegular />}
+                  />
+                  <Button
+                    onClick={() => {
+                      edit(item);
+                    }}
+                    icon={<EditRegular />}
+                  />
+                </TableCell>
+                <TableCell>{item.Title}</TableCell>
+                <TableCell>
+                  {
+                    <div
+                      className={`${
+                        item.Status === "New"
+                          ? styles.new
+                          : item.Status === "In Progress"
+                          ? styles.inProgress
+                          : item.Status === "Rejected"
+                          ? styles.rejected
+                          : styles.approved
+                      } ${styles.status}`}
+                    >
+                      {item.Status}
+                    </div>
                   }
-                })}
-              </TableCell>
-              <TableCell>{moment(item.DueDate).format("YYYY-MM-DD")}</TableCell>
-              <TableCell>
+                </TableCell>
+                <TableCell>
+                  {props.users.map((user) => {
+                    if (user.Id === item.Assigned_x0020_ManagerId) {
+                      return user.Title;
+                    }
+                  })}
+                </TableCell>
+                <TableCell>
+                  {moment(item.DueDate).format("YYYY-MM-DD")}
+                </TableCell>
+                <TableCell>
                   {item.ExecutionDate !== null
                     ? moment(item.ExecutionDate).format("YYYY-MM-DD")
                     : "-"}
-              </TableCell>
-              <TableCell>
-                {props.requestTypes.map((type) => {
-                  if (type.key === item.RequestTypeId) {
-                    return type.text;
-                  }
-                })}
-              </TableCell>
-              <TableCell>{item.RequestArea}</TableCell>
-              <TableCell>
-                <TableCellLayout>
-                <div className={styles.tagsCell}>
-                  {item.Tags.map(
-                    (
-                      tag: { Label: string },
-                      index: React.Key | null | undefined
-                    ) => {
-                      return (
-                        <div className={styles.tag} key={index}>
-                          {tag.Label}
-                        </div>
-                      );
+                </TableCell>
+                <TableCell>
+                  {props.requestTypes.map((type) => {
+                    if (type.key === item.RequestTypeId) {
+                      return type.text;
                     }
-                  )}
-                </div>
-                </TableCellLayout>
-              </TableCell>
-            </TableRow> : null
-          ))}
+                  })}
+                </TableCell>
+                <TableCell>{item.RequestArea}</TableCell>
+                <TableCell>
+                  <TableCellLayout>
+                    <div className={styles.tagsCell}>
+                      {item.Tags.map(
+                        (
+                          tag: { Label: string },
+                          index: React.Key | null | undefined
+                        ) => {
+                          return (
+                            <div className={styles.tag} key={index}>
+                              {tag.Label}
+                            </div>
+                          );
+                        }
+                      )}
+                    </div>
+                  </TableCellLayout>
+                </TableCell>
+              </TableRow>
+            ) : null
+          )}
         </TableBody>
       </Table>
       <EditItems

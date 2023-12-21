@@ -151,12 +151,6 @@ export const EditItems = (
       setSelectedRequestTypeId(item.key);
     }
   };
-  const setRequestAreaChoice = (
-    event: React.FormEvent<HTMLDivElement>,
-    item: IDropdownOption
-  ): void => {
-    setSelectedRequestAreaChoice(item.text);
-  };
   const setTags = (
     event: React.FormEvent<HTMLDivElement>,
     item: IDropdownOption
@@ -244,7 +238,7 @@ export const EditItems = (
                       className={styles.formField}
                       label="Request area"
                       defaultSelectedKey={selectedRequestAreaChoice}
-                      onChange={setRequestAreaChoice}
+                      onChange={(e, item: IDropdownOption) => setSelectedRequestAreaChoice(item.text)}
                       options={props.requestAreaChoices}
                     />
                   ) : null}
