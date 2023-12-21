@@ -108,13 +108,6 @@ const columns: TableColumnDefinition<IRequest>[] = [
         .localeCompare(moment(b.ExecutionDate).format("YYYY-MM-DD"));
     },
   }),
-
-  createTableColumn<IRequest>({
-    columnId: "requestArea",
-    compare: (a, b) => {
-      return a.RequestArea.localeCompare(b.RequestArea);
-    },
-  }),
 ];
 
 
