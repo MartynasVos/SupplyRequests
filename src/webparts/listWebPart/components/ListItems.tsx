@@ -25,8 +25,12 @@ import * as moment from "moment";
 import { SPFx, spfi } from "@pnp/sp";
 import { IDropdownOption } from "@fluentui/react/lib/Dropdown";
 import { mergeStyleSets, type IComboBoxOption } from "@fluentui/react";
+import { Toggle } from '@fluentui/react/lib/Toggle';
 
 const styles = mergeStyleSets({
+  toggleBox: {
+    display: 'flex',
+  },
   tagsCell: {
     display: "flex",
     flexWrap: 'wrap'
@@ -118,7 +122,7 @@ export const ListItems = (
     useBoolean(false);
 
   const [currentItem, setCurrentItem] = React.useState<IRequest>();
-
+ 
   function edit(item: IRequest): void {
     if (item.Status !== "New") {
       return alert("Can only edit request in status new");
@@ -188,9 +192,52 @@ export const ListItems = (
     sortDirection: getSortDirection(columnId),
   });
 
+  const statusNew = (event: React.MouseEvent<HTMLElement>, checked?: boolean): void =>  {
+    const arr: string[] = [...props.selectedStatus]
+    if (checked) {
+      arr.push('New')
+    } else {
+      arr.splice(props.selectedStatus.indexOf('New'), 1)
+    }
+    props.setSelectedStatus(arr)
+  }
+  const statusInProgress = (event: React.MouseEvent<HTMLElement>, checked?: boolean): void =>  {
+    const arr: string[] = [...props.selectedStatus]
+    if (checked) {
+      arr.push('In Progress')
+    } else {
+      arr.splice(props.selectedStatus.indexOf('In Progress'), 1)
+    }
+    props.setSelectedStatus(arr)
+  }
+  const statusApproved = (event: React.MouseEvent<HTMLElement>, checked?: boolean): void =>  {
+    const arr: string[] = [...props.selectedStatus]
+    if (checked) {
+      arr.push('Approved')
+    } else {
+      arr.splice(props.selectedStatus.indexOf('Approved'), 1)
+    }
+    props.setSelectedStatus(arr)
+  }
+  const statusRejected = (event: React.MouseEvent<HTMLElement>, checked?: boolean): void =>  {
+    const arr: string[] = [...props.selectedStatus]
+    if (checked) {
+      arr.push('Rejected')
+    } else {
+      arr.splice(props.selectedStatus.indexOf('Rejected'), 1)
+    }
+    props.setSelectedStatus(arr)
+  }
+
   const rows = sort(getRows());
   return (
     <>
+    <div className={styles.toggleBox}>
+      <Toggle label="New" defaultChecked onChange={statusNew} />
+      <Toggle label="In Progress" defaultChecked onChange={statusInProgress} />
+      <Toggle label="Rejected" defaultChecked onChange={statusRejected} />
+      <Toggle label="Approved" defaultChecked onChange={statusApproved} />
+    </div>
       <Table arial-label="Default table">
         <TableHeader>
           <TableRow>
@@ -206,7 +253,8 @@ export const ListItems = (
         </TableHeader>
         <TableBody>
           {rows.map(({ item }) => (
-            <TableRow key={item.Id}>
+            props.selectedStatus.indexOf(item.Status) !== -1 ?
+             <TableRow key={item.Id}>
               <TableCell>
                 <Button
                   onClick={() => deleteItemFunction(item)}
@@ -276,7 +324,7 @@ export const ListItems = (
                 </div>
                 </TableCellLayout>
               </TableCell>
-            </TableRow>
+            </TableRow> : null
           ))}
         </TableBody>
       </Table>

@@ -28,6 +28,8 @@ export interface IListItemsProps {
   taxonomy: IDropdownOption[];
   requestAreaChoices: IDropdownOption[] | undefined;
   setItems: React.Dispatch<React.SetStateAction<IRequest[]>>;
+  selectedStatus: string[];
+  setSelectedStatus: React.Dispatch<React.SetStateAction<string[]>>;
 }
 export interface IFormProps {
   context: WebPartContext;
@@ -68,6 +70,7 @@ export const List = (
   const [requestManagers, setRequestManagers] = React.useState<IComboBoxOption[]>();
   const [taxonomy, setTaxonomy] = React.useState<IDropdownOption[]>([])
   const [requestAreaChoices, setRequestAreaChoices] = React.useState<IDropdownOption[]>()
+  const [selectedStatus, setSelectedStatus] = React.useState(['New', 'In Progress', 'Rejected', 'Approved'])
 
 
   React.useEffect(() => {
@@ -189,7 +192,7 @@ export const List = (
           return;
         }
       );
-  }, []);
+  }, [selectedStatus]);
   return (
     <div>
       <ListItems
@@ -203,6 +206,8 @@ export const List = (
         taxonomy={taxonomy}
         requestAreaChoices={requestAreaChoices}
         setItems={setItems}
+        selectedStatus={selectedStatus}
+        setSelectedStatus={setSelectedStatus}
       />
       <FormModalBox 
       context={props.context}
