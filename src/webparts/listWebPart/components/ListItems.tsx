@@ -24,17 +24,66 @@ import { EditItems } from "./EditItem";
 import * as moment from "moment";
 import { SPFx, spfi } from "@pnp/sp";
 import { IDropdownOption } from "@fluentui/react/lib/Dropdown";
-import type { IComboBoxOption } from "@fluentui/react";
+import { mergeStyleSets, type IComboBoxOption } from "@fluentui/react";
+
+const styles = mergeStyleSets({
+  tagsCell: {
+    display: "flex",
+    flexWrap: 'wrap'
+  },
+  tag: {
+    backgroundColor: "lightBlue",
+    borderRadius: "3px",
+    textAlign: "center",
+    margin: "3px",
+    padding: "3px",
+    color: "blue",
+    height: "fit-content",
+  },
+  status: {
+    borderRadius: "3px",
+    textAlign: "center",
+    width: "fit-content",
+    padding: "3px",
+  },
+  new: {
+    backgroundColor: "grey",
+  },
+  inProgress: {
+    backgroundColor: "#c2d99c",
+  },
+  rejected: {
+    backgroundColor: "#f7a29c",
+  },
+  approved: {
+    backgroundColor: "#54ffac",
+  },
+});
+
+export interface IEditItemProps {
+  context: WebPartContext;
+  requestTypes: IDropdownOption[];
+  taxonomy: IDropdownOption[];
+  requestAreaChoices: IDropdownOption[] | undefined;
+  setItems: React.Dispatch<React.SetStateAction<IRequest[]>>;
+  hidePopup: () => void;
+  isPopupVisible: boolean;
+  requestManagers: IComboBoxOption[] | undefined;
+  isRequestManager: boolean;
+  currentItem: IRequest | undefined;
+}
+
 
 const columnHeaders = [
+  { columnKey: "buttons", label: "" },
   { columnKey: "title", label: "Title" },
+  { columnKey: "status", label: "Status" },
+  { columnKey: "assignedManager", label: "Assigned manager" },
   { columnKey: "dueDate", label: "Due date" },
   { columnKey: "executionDate", label: "Execution date" },
   { columnKey: "requestType", label: "Request type" },
   { columnKey: "requestArea", label: "Request area" },
-  { columnKey: "assignedManager", label: "Assigned manager" },
   { columnKey: "tags", label: "Tags" },
-  { columnKey: "status", label: "Status" },
 ];
 const columns: TableColumnDefinition<IRequest>[] = [
   createTableColumn<IRequest>({
@@ -54,7 +103,9 @@ const columns: TableColumnDefinition<IRequest>[] = [
   createTableColumn<IRequest>({
     columnId: "executionDate",
     compare: (a, b) => {
-      return moment(a.ExecutionDate).format("YYYY-MM-DD").localeCompare(moment(b.ExecutionDate).format("YYYY-MM-DD"));
+      return moment(a.ExecutionDate)
+        .format("YYYY-MM-DD")
+        .localeCompare(moment(b.ExecutionDate).format("YYYY-MM-DD"));
     },
   }),
 
@@ -66,18 +117,6 @@ const columns: TableColumnDefinition<IRequest>[] = [
   }),
 ];
 
-export interface IEditItemProps {
-  context: WebPartContext;
-  requestTypes: IDropdownOption[];
-  taxonomy: IDropdownOption[];
-  requestAreaChoices: IDropdownOption[] | undefined;
-  setItems: React.Dispatch<React.SetStateAction<IRequest[]>>;
-  hidePopup: () => void;
-  isPopupVisible: boolean;
-  requestManagers: IComboBoxOption[] | undefined;
-  isRequestManager: boolean;
-  currentItem: IRequest | undefined;
-}
 
 export const ListItems = (
   props: IListItemsProps
@@ -174,15 +213,49 @@ export const ListItems = (
         </TableHeader>
         <TableBody>
           {rows.map(({ item }) => (
-            <TableRow key={item.Title}>
+            <TableRow key={item.Id}>
+              <TableCell>
+                <Button
+                  onClick={() => deleteItemFunction(item)}
+                  icon={<DeleteRegular />}
+                />
+                <Button
+                  onClick={() => {
+                    edit(item);
+                  }}
+                  icon={<EditRegular />}
+                />
+              </TableCell>
               <TableCell>{item.Title}</TableCell>
+              <TableCell>
+                {
+                  <div
+                    className={
+                      `${item.Status === "New"
+                        ? styles.new
+                        : item.Status === "In Progress"
+                        ? styles.inProgress
+                        : item.Status === "Rejected"
+                        ? styles.rejected
+                        : styles.approved} ${styles.status}`
+                    }
+                  >
+                    {item.Status}
+                  </div>
+                }
+              </TableCell>
+              <TableCell>
+                {props.users.map((user) => {
+                  if (user.Id === item.Assigned_x0020_ManagerId) {
+                    return user.Title;
+                  }
+                })}
+              </TableCell>
               <TableCell>{moment(item.DueDate).format("YYYY-MM-DD")}</TableCell>
               <TableCell>
-                <TableCellLayout truncate={true}>
                   {item.ExecutionDate !== null
                     ? moment(item.ExecutionDate).format("YYYY-MM-DD")
                     : "-"}
-                </TableCellLayout>
               </TableCell>
               <TableCell>
                 {props.requestTypes.map((type) => {
@@ -193,34 +266,22 @@ export const ListItems = (
               </TableCell>
               <TableCell>{item.RequestArea}</TableCell>
               <TableCell>
-                {props.users.map((user) => {
-                  if (user.Id === item.Assigned_x0020_ManagerId) {
-                    return user.Title;
-                  }
-                })}
-              </TableCell>
-              <TableCell>
-                {item.Tags.map(
-                  (
-                    tag: { Label: string },
-                    index: React.Key | null | undefined
-                  ) => {
-                    return <div key={index}>{tag.Label}</div>;
-                  }
-                )}
-              </TableCell>
-              <TableCell>{item.Status}</TableCell>
-              <TableCell>
-                <Button
-                  onClick={() => {
-                    edit(item);
-                  }}
-                  icon={<EditRegular />}
-                />
-                <Button
-                  onClick={() => deleteItemFunction(item)}
-                  icon={<DeleteRegular />}
-                />
+                <TableCellLayout>
+                <div className={styles.tagsCell}>
+                  {item.Tags.map(
+                    (
+                      tag: { Label: string },
+                      index: React.Key | null | undefined
+                    ) => {
+                      return (
+                        <div className={styles.tag} key={index}>
+                          {tag.Label}
+                        </div>
+                      );
+                    }
+                  )}
+                </div>
+                </TableCellLayout>
               </TableCell>
             </TableRow>
           ))}
