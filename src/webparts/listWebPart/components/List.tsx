@@ -23,13 +23,13 @@ export interface IListItemsProps {
   requestTypes: IDropdownOption[];
   users: ISiteUserInfo[];
   isRequestManager: boolean;
-  currentUserId: number | undefined;
   requestManagers: IComboBoxOption[] | undefined;
   taxonomy: IDropdownOption[];
   requestAreaChoices: IDropdownOption[] | undefined;
   setItems: React.Dispatch<React.SetStateAction<IRequest[]>>;
   selectedStatus: string[];
   setSelectedStatus: React.Dispatch<React.SetStateAction<string[]>>;
+  getItems: () => Promise<IRequest[]>;
 }
 export interface IFormProps {
   context: WebPartContext;
@@ -65,7 +65,6 @@ export const List = (
   const [itemsState, setItems] = React.useState<IRequest[]>([]);
   const [requestTypes, setRequestTypes] = React.useState<IDropdownOption[]>([]);
   const [users, setUsers] = React.useState<ISiteUserInfo[]>([]);
-  const [currentUserId, setCurrentUserId] = React.useState<number>();
   const [isRequestManager, setIsRequestManager] = React.useState(false);
   const [requestManagers, setRequestManagers] =
     React.useState<IComboBoxOption[]>();
@@ -79,48 +78,44 @@ export const List = (
     "Approved",
   ]);
 
+  const sp = spfi().using(SPFx(props.context));
+  const getItems = async (): Promise<IRequest[]> => {
+    const items = await sp.web.lists.getByTitle("Requests").items();
+    return items;
+  };
+  const getRequestTypes = async (): Promise<IRequestTypes[]> => {
+    const requestTypes = await sp.web.lists
+      .getByTitle("Request type")
+      .items();
+    return requestTypes;
+  };
+  const getUsers = async (): Promise<ISiteUserInfo[]> => {
+    const users = await sp.web.siteUsers();
+    return users;
+  };
+  const getUserGroup = async (): Promise<ISiteGroupInfo[]> => {
+    const userGroup = await sp.web.currentUser.groups();
+    return userGroup;
+  };
+  const getRequestManagers = async (): Promise<ISiteUserInfo[]> => {
+    const users = await sp.web.siteGroups.getById(12).users();
+    return users;
+  };
+  const getTaxonomy = async (): Promise<ITermInfo[]> => {
+    const info: ITermInfo[] = await sp.termStore.groups
+      .getById("57cb87c2-f752-4c56-8d61-dbe357db2d81")
+      .sets.getById("d9e481e9-4309-4c4f-bd3a-588fc993ddc0")
+      .terms();
+    return info;
+  };
+  const getChoiceField = async (): Promise<IFieldInfo[]> => {
+    const choiceField = await sp.web.lists
+      .getByTitle("Requests")
+      .fields.filter("Title eq 'Request Area'")
+      .select("Choices")();
+    return choiceField;
+  };
   React.useEffect(() => {
-    const sp = spfi().using(SPFx(props.context));
-    const getItems = async (): Promise<IRequest[]> => {
-      const items = await sp.web.lists.getByTitle("Requests").items();
-      return items;
-    };
-    const getRequestTypes = async (): Promise<IRequestTypes[]> => {
-      const requestTypes = await sp.web.lists
-        .getByTitle("Request type")
-        .items();
-      return requestTypes;
-    };
-    const getUsers = async (): Promise<ISiteUserInfo[]> => {
-      const users = await sp.web.siteUsers();
-      return users;
-    };
-    const getCurrentUser = async (): Promise<ISiteUserInfo> => {
-      const currentUser = await sp.web.currentUser();
-      return currentUser;
-    };
-    const getUserGroup = async (): Promise<ISiteGroupInfo[]> => {
-      const userGroup = await sp.web.currentUser.groups();
-      return userGroup;
-    };
-    const getRequestManagers = async (): Promise<ISiteUserInfo[]> => {
-      const users = await sp.web.siteGroups.getById(12).users();
-      return users;
-    };
-    const getTaxonomy = async (): Promise<ITermInfo[]> => {
-      const info: ITermInfo[] = await sp.termStore.groups
-        .getById("57cb87c2-f752-4c56-8d61-dbe357db2d81")
-        .sets.getById("d9e481e9-4309-4c4f-bd3a-588fc993ddc0")
-        .terms();
-      return info;
-    };
-    const getChoiceField = async (): Promise<IFieldInfo[]> => {
-      const choiceField = await sp.web.lists
-        .getByTitle("Requests")
-        .fields.filter("Title eq 'Request Area'")
-        .select("Choices")();
-      return choiceField;
-    };
     getItems().then(
       (result) => {
         setItems(result);
@@ -144,14 +139,6 @@ export const List = (
     getUsers().then(
       (result) => {
         setUsers(result);
-      },
-      () => {
-        return;
-      }
-    );
-    getCurrentUser().then(
-      (result) => {
-        setCurrentUserId(result.Id);
       },
       () => {
         return;
@@ -205,7 +192,7 @@ export const List = (
         return;
       }
     );
-  }, [selectedStatus]);
+  }, []);
   return (
     <div>
       <ListItems
@@ -214,13 +201,13 @@ export const List = (
         requestTypes={requestTypes}
         users={users}
         isRequestManager={isRequestManager}
-        currentUserId={currentUserId}
         requestManagers={requestManagers}
         taxonomy={taxonomy}
         requestAreaChoices={requestAreaChoices}
         setItems={setItems}
         selectedStatus={selectedStatus}
         setSelectedStatus={setSelectedStatus}
+        getItems={getItems}
       />
       <FormModalBox
         context={props.context}

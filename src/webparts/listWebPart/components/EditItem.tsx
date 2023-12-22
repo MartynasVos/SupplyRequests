@@ -18,7 +18,7 @@ import { SPFx, spfi } from "@pnp/sp";
 import { IRequest } from "./List";
 import * as moment from "moment";
 import styles from "./ListWebPart.module.scss";
-import { DeleteItem } from "./Text";
+import { DeleteItem } from "./DeleteItem";
 import { WebPartContext } from "@microsoft/sp-webpart-base";
 
 export interface IDeleteItemProps {
@@ -55,13 +55,6 @@ export const EditItem = (
     setSelectedTagsIds(tagIds);
     setSelectedManagerId(undefined);
   }
-
-  const getItems = async (): Promise<IRequest[]> => {
-    const sp = spfi().using(SPFx(props.context));
-    const items = await sp.web.lists.getByTitle("Requests").items();
-    return items;
-  };
-
   function editItemFunction(): void {
     const title = (document.getElementById("title") as HTMLInputElement).value;
     const description = (
@@ -98,7 +91,7 @@ export const EditItem = (
 
     editItem().then(
       () => {
-        getItems().then(
+        props.getItems().then(
           (result) => {
             props.setItems(result);
           },
@@ -239,7 +232,7 @@ export const EditItem = (
                     setItems={props.setItems}
                     hidePopup={props.hidePopup}
                     currentItem={props.currentItem}
-                    getItems={getItems}
+                    getItems={props.getItems}
                   />
                   <DefaultButton
                     onClick={() => {

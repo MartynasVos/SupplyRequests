@@ -38,6 +38,7 @@ export interface IEditItemProps {
   requestManagers: IComboBoxOption[] | undefined;
   isRequestManager: boolean;
   currentItem: IRequest;
+  getItems: () => Promise<IRequest[]>;
 }
 
 const columnHeaders = [
@@ -218,7 +219,7 @@ export const ListItems = (
               ).length !== 0) &&
             props.selectedStatus.indexOf(item.Status) !== -1 ? (
               <TableRow key={item.Id}>
-                <TableCell>
+                <TableCell style={{maxWidth: '20px'}}>
                   {item.Status === "New" ? (
                       <Button
                         onClick={() => {
@@ -304,6 +305,7 @@ export const ListItems = (
         requestManagers={props.requestManagers}
         isRequestManager={props.isRequestManager}
         currentItem={currentItem}
+        getItems={props.getItems}
       />
     </>
   );
