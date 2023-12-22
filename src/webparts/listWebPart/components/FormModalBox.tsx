@@ -1,6 +1,5 @@
 import * as React from "react";
 import {
-  mergeStyleSets,
   DefaultButton,
   FocusTrapZone,
   Layer,
@@ -11,10 +10,7 @@ import {
   TextField,
 } from "@fluentui/react";
 
-import {
-  Dropdown,
-  IDropdownOption,
-} from "@fluentui/react/lib/Dropdown";
+import { Dropdown, IDropdownOption } from "@fluentui/react/lib/Dropdown";
 
 import { useBoolean } from "@fluentui/react-hooks";
 import { IFormProps, IRequest } from "./List";
@@ -24,42 +20,7 @@ import "@pnp/sp/fields";
 import { IItemAddResult } from "@pnp/sp/items";
 import * as moment from "moment";
 
-const styles = mergeStyleSets({
-  root: {
-    background: "rgba(0, 0, 0, 0.2)",
-    bottom: "0",
-    left: "0",
-    position: "fixed",
-    right: "0",
-    top: "0",
-  },
-  content: {
-    background: "white",
-    left: "50%",
-    maxWidth: "640px",
-    width: "100%",
-    padding: "2em",
-    position: "absolute",
-    top: "50%",
-    transform: "translate(-50%, -50%)",
-    display: "grid",
-    justifyContent: "center",
-  },
-  formField: {
-    width: "300px",
-    marginBottom: "40px",
-  },
-  primaryBtn: {
-    ":hover": {
-      backgroundColor: "blue",
-    },
-    ":active": {
-      backgroundColor: "blue",
-    },
-    backgroundColor: "blue",
-    color: "white",
-  },
-});
+import styles from "./ListWebPart.module.scss";
 
 export const FormModalBox = (
   props: IFormProps
@@ -183,7 +144,7 @@ export const FormModalBox = (
       {isPopupVisible && (
         <Layer>
           <Popup
-            className={styles.root}
+            className={styles.modalBox}
             role="dialog"
             aria-modal="true"
             onDismiss={hidePopup}
@@ -191,7 +152,7 @@ export const FormModalBox = (
           >
             <Overlay onClick={hidePopup} />
             <FocusTrapZone>
-              <div role="document" className={styles.content}>
+              <div role="document" className={styles.modalContent}>
                 <TextField label="Title" id="title" required />
                 <TextField
                   label="Description"
@@ -200,46 +161,39 @@ export const FormModalBox = (
                   multiline
                   rows={5}
                 />
-                <div>
+                <DatePicker
+                  placeholder="Select a date..."
+                  className={styles.modalFormField}
+                  label="Due Date"
+                  isRequired
+                  isMonthPickerVisible={false}
+                  minDate={addDays(new Date(), 3)}
+                  onSelectDate={(date: Date) => setSelectedDate(date)}
+                  value={selectedDate}
+                  formatDate={onFormatDate}
+                />
+                <Dropdown
+                  className={styles.modalFormField}
+                  label="Request Type"
+                  required
+                  onChange={setRequestType}
+                  options={props.requestTypes}
+                />
+                {props.requestAreaChoices !== undefined ? (
                   <Dropdown
-                    className={styles.formField}
-                    label="Request Type"
-                    onChange={setRequestType}
-                    options={props.requestTypes}
+                    className={styles.modalFormField}
+                    label="Request area"
+                    onChange={setRequestAreaChoice}
+                    options={props.requestAreaChoices}
                   />
-                </div>
-                <div>
-                  {props.requestAreaChoices !== undefined ? (
-                    <Dropdown
-                      className={styles.formField}
-                      label="Request area"
-                      onChange={setRequestAreaChoice}
-                      options={props.requestAreaChoices}
-                    />
-                  ) : null}
-                </div>
-                <div>
-                  <DatePicker
-                    id="dueDate"
-                    placeholder="Select a date..."
-                    className={styles.formField}
-                    label="Due Date"
-                    isMonthPickerVisible={false}
-                    minDate={addDays(new Date(), 3)}
-                    onSelectDate={(date: Date) => setSelectedDate(date)}
-                    value={selectedDate}
-                    formatDate={onFormatDate}
-                  />
-                </div>
-                <div>
-                  <Dropdown
-                    className={styles.formField}
-                    label="Tags"
-                    onChange={setTags}
-                    options={props.taxonomy}
-                    multiSelect
-                  />
-                </div>
+                ) : null}
+                <Dropdown
+                  className={styles.modalFormField}
+                  label="Tags"
+                  onChange={setTags}
+                  options={props.taxonomy}
+                  multiSelect
+                />
                 <div>
                   <DefaultButton
                     className={styles.primaryBtn}

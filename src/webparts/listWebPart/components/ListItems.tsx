@@ -24,52 +24,10 @@ import { EditItems } from "./EditItem";
 import * as moment from "moment";
 import { SPFx, spfi } from "@pnp/sp";
 import { IDropdownOption } from "@fluentui/react/lib/Dropdown";
-import {
-  mergeStyleSets,
-  type IComboBoxOption,
-  TextField,
-} from "@fluentui/react";
+import { type IComboBoxOption, TextField } from "@fluentui/react";
 import { Toggle } from "@fluentui/react/lib/Toggle";
 
-const styles = mergeStyleSets({
-  toggleBox: {
-    display: "flex",
-  },
-  toggle: {
-    marginLeft: "25px",
-  },
-  tagsCell: {
-    display: "flex",
-    flexWrap: "wrap",
-  },
-  tag: {
-    backgroundColor: "lightBlue",
-    borderRadius: "3px",
-    textAlign: "center",
-    margin: "3px",
-    padding: "3px",
-    color: "blue",
-    height: "fit-content",
-  },
-  status: {
-    borderRadius: "3px",
-    textAlign: "center",
-    width: "fit-content",
-    padding: "5px",
-  },
-  new: {
-    backgroundColor: "#bec2bf",
-  },
-  inProgress: {
-    backgroundColor: "#c2d99c",
-  },
-  rejected: {
-    backgroundColor: "#f7a29c",
-  },
-  approved: {
-    backgroundColor: "#54ffac",
-  },
-});
+import styles from "./ListWebPart.module.scss";
 
 export interface IEditItemProps {
   context: WebPartContext;
@@ -81,7 +39,7 @@ export interface IEditItemProps {
   isPopupVisible: boolean;
   requestManagers: IComboBoxOption[] | undefined;
   isRequestManager: boolean;
-  currentItem: IRequest | undefined;
+  currentItem: IRequest;
 }
 
 const columnHeaders = [
@@ -126,7 +84,9 @@ export const ListItems = (
   const [isPopupVisible, { setTrue: showPopup, setFalse: hidePopup }] =
     useBoolean(false);
 
-  const [currentItem, setCurrentItem] = React.useState<IRequest>();
+  const [currentItem, setCurrentItem] = React.useState<IRequest>(
+    props.items[0]
+  );
   const [tagsSearch, setTagsSearch] = React.useState<string>();
 
   function edit(item: IRequest): void {
@@ -289,10 +249,11 @@ export const ListItems = (
         <TableBody>
           {rows.map(({ item }) =>
             (!tagsSearch ||
-            item.Tags.filter(
-              (tag: { Label: string }) =>
-                tag.Label.toLowerCase().indexOf(tagsSearch.toLowerCase()) !== -1
-            ).length !== 0) &&
+              item.Tags.filter(
+                (tag: { Label: string }) =>
+                  tag.Label.toLowerCase().indexOf(tagsSearch.toLowerCase()) !==
+                  -1
+              ).length !== 0) &&
             props.selectedStatus.indexOf(item.Status) !== -1 ? (
               <TableRow key={item.Id}>
                 <TableCell>
@@ -326,11 +287,11 @@ export const ListItems = (
                   }
                 </TableCell>
                 <TableCell>
-                  {props.users.map((user) => {
-                    if (user.Id === item.Assigned_x0020_ManagerId) {
-                      return user.Title;
-                    }
-                  })}
+                  {item.Assigned_x0020_ManagerId !== null
+                    ? props.users.filter((user) => {
+                        return user.Id === item.Assigned_x0020_ManagerId;
+                      })[0].Title
+                    : null}
                 </TableCell>
                 <TableCell>
                   {moment(item.DueDate).format("YYYY-MM-DD")}
@@ -341,11 +302,11 @@ export const ListItems = (
                     : "-"}
                 </TableCell>
                 <TableCell>
-                  {props.requestTypes.map((type) => {
-                    if (type.key === item.RequestTypeId) {
-                      return type.text;
-                    }
-                  })}
+                  {
+                    props.requestTypes.filter(
+                      (type) => type.key === item.RequestTypeId
+                    )[0].text
+                  }
                 </TableCell>
                 <TableCell>{item.RequestArea}</TableCell>
                 <TableCell>

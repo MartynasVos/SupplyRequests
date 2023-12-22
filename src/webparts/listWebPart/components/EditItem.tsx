@@ -9,46 +9,16 @@ import {
   Popup,
   TextField,
   addDays,
-  mergeStyleSets,
   ComboBox,
   IComboBoxOption,
-  IComboBox
 } from "@fluentui/react";
-import {
-  Dropdown,
-  IDropdownOption,
-} from "@fluentui/react/lib/Dropdown";
+import { Dropdown, IDropdownOption } from "@fluentui/react/lib/Dropdown";
 
 import { SPFx, spfi } from "@pnp/sp";
 import { IRequest } from "./List";
 import * as moment from "moment";
 
-const styles = mergeStyleSets({
-  root: {
-    background: "rgba(0, 0, 0, 0.2)",
-    bottom: "0",
-    left: "0",
-    position: "fixed",
-    right: "0",
-    top: "0",
-  },
-  content: {
-    background: "white",
-    left: "50%",
-    maxWidth: "640px",
-    width: "100%",
-    padding: "2em",
-    position: "absolute",
-    top: "50%",
-    transform: "translate(-50%, -50%)",
-    display: "grid",
-    justifyContent: "center",
-  },
-  formField: {
-    width: 300,
-    marginBottom: "40px",
-  },
-});
+import styles from "./ListWebPart.module.scss";
 
 export const EditItems = (
   props: IEditItemProps
@@ -60,13 +30,9 @@ export const EditItems = (
   const [selectedRequestAreaChoice, setSelectedRequestAreaChoice] =
     React.useState<string>();
   const [selectedTagsIds, setSelectedTagsIds] = React.useState<string[]>([]);
-  const [currentItemId, setCurrentItemId] = React.useState<number>(0);
 
   React.useEffect(() => {
     setData();
-  }, [props.currentItem]);
-
-  function setData(): void {
     setSelectedDate(moment(props.currentItem?.DueDate).toDate());
     setSelectedRequestTypeId(props.currentItem?.RequestTypeId);
     setSelectedRequestAreaChoice(props.currentItem?.RequestArea);
@@ -75,10 +41,11 @@ export const EditItems = (
       tagIds.push(tag.TermGuid);
     });
     setSelectedTagsIds(tagIds);
-    if (props.currentItem !== undefined) {
-      setCurrentItemId(props.currentItem?.Id);
-    }
-    setSelectedManagerId(undefined)
+    setSelectedManagerId(undefined);
+  }, [props.currentItem]);
+
+  function setData(): void {
+    console.log("first");
   }
 
   function editItemFunction(): void {
@@ -91,17 +58,17 @@ export const EditItems = (
       description = (document.getElementById("description") as HTMLInputElement)
         .value;
     }
-    let status = "New"
-      if (props.isRequestManager) {
-        status = 'In Progress'
-        if (selectedManagerId === undefined) {
-         return alert('Assigned Manager field is mandatory')
-        }
+    let status = "New";
+    if (props.isRequestManager) {
+      status = "In Progress";
+      if (selectedManagerId === undefined) {
+        return alert("Assigned Manager field is mandatory");
       }
+    }
     const editItem = async (): Promise<void> => {
       const sp = spfi().using(SPFx(props.context));
       const list = sp.web.lists.getByTitle("Requests");
-      const i = await list.items.getById(currentItemId).update({
+      const i = await list.items.getById(props.currentItem.Id).update({
         Title: title,
         Description: description,
         DueDate: selectedDate,
@@ -141,16 +108,7 @@ export const EditItems = (
       }
     );
     props.hidePopup();
-    
   }
-  const setRequestType = (
-    event: React.FormEvent<HTMLDivElement>,
-    item: IDropdownOption
-  ): void => {
-    if (typeof item.key !== "string") {
-      setSelectedRequestTypeId(item.key);
-    }
-  };
   const setTags = (
     event: React.FormEvent<HTMLDivElement>,
     item: IDropdownOption
@@ -172,19 +130,12 @@ export const EditItems = (
         ).format("YYYY-MM-DD");
   };
 
-  const setManager = (
-    event: React.FormEvent<IComboBox>, option?: IComboBoxOption | undefined, index?: number | undefined
-  ): void => {
-    if (option !== undefined && typeof option.key === 'number') {
-      setSelectedManagerId(option.key)
-    }
-  };
   return (
     <>
       {props.isPopupVisible && (
         <Layer>
           <Popup
-            className={styles.root}
+            className={styles.modalBox}
             role="dialog"
             aria-modal="true"
             onDismiss={props.hidePopup}
@@ -192,83 +143,84 @@ export const EditItems = (
           >
             <Overlay onClick={props.hidePopup} />
             <FocusTrapZone>
-              <div role="document" className={styles.content}>
-                    <TextField
-                      label="Title"
-                      id="title"
-                      required
-                      disabled={props.isRequestManager ? true : false}
-                      defaultValue={props.currentItem?.Title}
-                    />
-                    <TextField
-                      label="Description"
-                      id="description"
-                      required
-                      multiline
-                      rows={5}
-                      disabled={props.isRequestManager ? true : false}
-                      defaultValue={props.currentItem?.Description}
-                    />
-                
+              <div role="document" className={styles.modalContent}>
+                <TextField
+                  label="Title"
+                  id="title"
+                  required
+                  disabled={props.isRequestManager ? true : false}
+                  defaultValue={props.currentItem?.Title}
+                />
+                <TextField
+                  label="Description"
+                  id="description"
+                  required
+                  multiline
+                  rows={5}
+                  disabled={props.isRequestManager ? true : false}
+                  defaultValue={props.currentItem?.Description}
+                />
+                <DatePicker
+                  id="dueDate"
+                  className={styles.modalFormField}
+                  label="Due Date"
+                  isRequired
+                  isMonthPickerVisible={false}
+                  minDate={addDays(new Date(), 3)}
+                  onSelectDate={(date: Date) =>
+                    setSelectedDate(moment(date, "YYYY-MM-DD").toDate())
+                  }
+                  value={selectedDate}
+                  formatDate={onFormatDate}
+                  disabled={props.isRequestManager ? true : false}
+                />
                 {props.isRequestManager ? (
-                  <div>
-                    {props.requestManagers !== undefined ? (
-                      <ComboBox 
-                      className={styles.formField}
+                  props.requestManagers !== undefined ? (
+                    <ComboBox
+                      className={styles.modalFormField}
                       label="Assign a manager"
                       required
                       options={props.requestManagers}
                       autoComplete="on"
-                      onItemClick={setManager} />
-                    ) : null}
-                  </div>
-                ) : null}
-                <div>
-                  <Dropdown
-                    className={styles.formField}
-                    label="Request Type"
-                    defaultSelectedKey={selectedRequestTypeId}
-                    onChange={setRequestType}
-                    options={props.requestTypes}
-                  />
-                </div>
-                <div>
-                  {props.requestAreaChoices !== undefined ? (
-                    <Dropdown
-                      className={styles.formField}
-                      label="Request area"
-                      defaultSelectedKey={selectedRequestAreaChoice}
-                      onChange={(e, item: IDropdownOption) => setSelectedRequestAreaChoice(item.text)}
-                      options={props.requestAreaChoices}
-                    />
-                  ) : null}
-                </div>
-                  <div>
-                    <DatePicker
-                      id="dueDate"
-                      className={styles.formField}
-                      label="Due Date"
-                      isMonthPickerVisible={false}
-                      minDate={addDays(new Date(), 3)}
-                      onSelectDate={(date: Date) =>
-                        setSelectedDate(moment(date, "YYYY-MM-DD").toDate())
+                      onItemClick={(e, option: IComboBoxOption) =>
+                        typeof option.key !== "string"
+                          ? setSelectedManagerId(option.key)
+                          : null
                       }
-                      value={selectedDate}
-                      formatDate={onFormatDate}
-                      disabled={props.isRequestManager ? true : false}
                     />
-                  </div>
-               
-                <div>
+                  ) : null
+                ) : null}
+                <Dropdown
+                  className={styles.modalFormField}
+                  label="Request Type"
+                  required
+                  defaultSelectedKey={selectedRequestTypeId}
+                  onChange={(e, item: IDropdownOption) =>
+                    typeof item.key !== "string"
+                      ? setSelectedRequestTypeId(item.key)
+                      : null
+                  }
+                  options={props.requestTypes}
+                />
+                {props.requestAreaChoices !== undefined ? (
                   <Dropdown
-                    className={styles.formField}
-                    label="Tags"
-                    defaultSelectedKeys={selectedTagsIds}
-                    onChange={setTags}
-                    options={props.taxonomy}
-                    multiSelect
+                    className={styles.modalFormField}
+                    label="Request area"
+                    defaultSelectedKey={selectedRequestAreaChoice}
+                    onChange={(e, item: IDropdownOption) =>
+                      setSelectedRequestAreaChoice(item.text)
+                    }
+                    options={props.requestAreaChoices}
                   />
-                </div>
+                ) : null}
+                <Dropdown
+                  className={styles.modalFormField}
+                  label="Tags"
+                  defaultSelectedKeys={selectedTagsIds}
+                  onChange={setTags}
+                  options={props.taxonomy}
+                  multiSelect
+                />
                 <div>
                   <DefaultButton
                     onClick={() => {

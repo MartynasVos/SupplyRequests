@@ -14,8 +14,8 @@ import { ISiteGroupInfo } from "@pnp/sp/site-groups/types";
 import { FormModalBox } from "./FormModalBox";
 import { IFieldInfo } from "@pnp/sp/fields";
 import "@pnp/sp/site-groups/web";
-import { IDropdownOption } from '@fluentui/react/lib/Dropdown';
-import type { IComboBoxOption } from '@fluentui/react';
+import { IDropdownOption } from "@fluentui/react/lib/Dropdown";
+import type { IComboBoxOption } from "@fluentui/react";
 
 export interface IListItemsProps {
   context: WebPartContext;
@@ -67,20 +67,28 @@ export const List = (
   const [users, setUsers] = React.useState<ISiteUserInfo[]>([]);
   const [currentUserId, setCurrentUserId] = React.useState<number>();
   const [isRequestManager, setIsRequestManager] = React.useState(false);
-  const [requestManagers, setRequestManagers] = React.useState<IComboBoxOption[]>();
-  const [taxonomy, setTaxonomy] = React.useState<IDropdownOption[]>([])
-  const [requestAreaChoices, setRequestAreaChoices] = React.useState<IDropdownOption[]>()
-  const [selectedStatus, setSelectedStatus] = React.useState(['New', 'In Progress', 'Rejected', 'Approved'])
-
+  const [requestManagers, setRequestManagers] =
+    React.useState<IComboBoxOption[]>();
+  const [taxonomy, setTaxonomy] = React.useState<IDropdownOption[]>([]);
+  const [requestAreaChoices, setRequestAreaChoices] =
+    React.useState<IDropdownOption[]>();
+  const [selectedStatus, setSelectedStatus] = React.useState([
+    "New",
+    "In Progress",
+    "Rejected",
+    "Approved",
+  ]);
 
   React.useEffect(() => {
     const sp = spfi().using(SPFx(props.context));
     const getItems = async (): Promise<IRequest[]> => {
       const items = await sp.web.lists.getByTitle("Requests").items();
       return items;
-    }
+    };
     const getRequestTypes = async (): Promise<IRequestTypes[]> => {
-      const requestTypes = await sp.web.lists.getByTitle("Request type").items();
+      const requestTypes = await sp.web.lists
+        .getByTitle("Request type")
+        .items();
       return requestTypes;
     };
     const getUsers = async (): Promise<ISiteUserInfo[]> => {
@@ -93,7 +101,6 @@ export const List = (
     };
     const getUserGroup = async (): Promise<ISiteGroupInfo[]> => {
       const userGroup = await sp.web.currentUser.groups();
-
       return userGroup;
     };
     const getRequestManagers = async (): Promise<ISiteUserInfo[]> => {
@@ -101,11 +108,17 @@ export const List = (
       return users;
     };
     const getTaxonomy = async (): Promise<ITermInfo[]> => {
-        const info: ITermInfo[] = await sp.termStore.groups.getById("57cb87c2-f752-4c56-8d61-dbe357db2d81").sets.getById("d9e481e9-4309-4c4f-bd3a-588fc993ddc0").terms();
-        return info
+      const info: ITermInfo[] = await sp.termStore.groups
+        .getById("57cb87c2-f752-4c56-8d61-dbe357db2d81")
+        .sets.getById("d9e481e9-4309-4c4f-bd3a-588fc993ddc0")
+        .terms();
+      return info;
     };
     const getChoiceField = async (): Promise<IFieldInfo[]> => {
-      const choiceField = await sp.web.lists.getByTitle("Requests").fields.filter("Title eq 'Request Area'").select("Choices")()
+      const choiceField = await sp.web.lists
+        .getByTitle("Requests")
+        .fields.filter("Title eq 'Request Area'")
+        .select("Choices")();
       return choiceField;
     };
     getItems().then(
@@ -118,11 +131,11 @@ export const List = (
     );
     getRequestTypes().then(
       (result) => {
-        const arr: IDropdownOption[] = []
+        const arr: IDropdownOption[] = [];
         result.map((type) => {
-          arr.push({key: type.Id, text: type.Title})
-        })
-        setRequestTypes(arr)
+          arr.push({ key: type.Id, text: type.Title });
+        });
+        setRequestTypes(arr);
       },
       () => {
         return;
@@ -158,40 +171,40 @@ export const List = (
     );
     getRequestManagers().then(
       (result) => {
-        const arr: IComboBoxOption[] = []
-          result.map((manager) => {
-            arr.push({key: manager.Id, text: manager.Title})
-          })
-        setRequestManagers(arr)
+        const arr: IComboBoxOption[] = [];
+        result.map((manager) => {
+          arr.push({ key: manager.Id, text: manager.Title });
+        });
+        setRequestManagers(arr);
       },
       () => {
         return;
       }
     );
     getTaxonomy().then(
-        (result) => {
-          const arr: IDropdownOption[] = []
-          result.map((tag) => {
-            arr.push({key: tag.id, text: tag.labels[0].name})
-          })
-          setTaxonomy(arr)
-        },
-        () => {
-          return;
-        }
-      );
-      getChoiceField().then(
-        (result) => {
-          const arr: IDropdownOption[] = []
-          result[0].Choices?.map((choice) => {
-            arr.push({key: choice, text: choice})
-          })
-          setRequestAreaChoices(arr)
-        },
-        () => {
-          return;
-        }
-      );
+      (result) => {
+        const arr: IDropdownOption[] = [];
+        result.map((tag) => {
+          arr.push({ key: tag.id, text: tag.labels[0].name });
+        });
+        setTaxonomy(arr);
+      },
+      () => {
+        return;
+      }
+    );
+    getChoiceField().then(
+      (result) => {
+        const arr: IDropdownOption[] = [];
+        result[0].Choices?.map((choice) => {
+          arr.push({ key: choice, text: choice });
+        });
+        setRequestAreaChoices(arr);
+      },
+      () => {
+        return;
+      }
+    );
   }, [selectedStatus]);
   return (
     <div>
@@ -209,15 +222,15 @@ export const List = (
         selectedStatus={selectedStatus}
         setSelectedStatus={setSelectedStatus}
       />
-      <FormModalBox 
-      context={props.context}
-      items={itemsState}
-      requestTypes={requestTypes}
-      users={users}
-      isRequestManager={isRequestManager}
-      taxonomy={taxonomy}
-      requestAreaChoices={requestAreaChoices}
-      setItems={setItems}
+      <FormModalBox
+        context={props.context}
+        items={itemsState}
+        requestTypes={requestTypes}
+        users={users}
+        isRequestManager={isRequestManager}
+        taxonomy={taxonomy}
+        requestAreaChoices={requestAreaChoices}
+        setItems={setItems}
       />
     </div>
   );
