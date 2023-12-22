@@ -23,9 +23,9 @@ import { WebPartContext } from "@microsoft/sp-webpart-base";
 import { EditItem } from "./EditItem";
 import * as moment from "moment";
 import { IDropdownOption } from "@fluentui/react/lib/Dropdown";
-import { type IComboBoxOption, TextField } from "@fluentui/react";
-import { Toggle } from "@fluentui/react/lib/Toggle";
+import { type IComboBoxOption } from "@fluentui/react";
 import styles from "./ListWebPart.module.scss";
+import { Filters } from "./Filters";
 
 export interface IEditItemProps {
   context: WebPartContext;
@@ -40,6 +40,13 @@ export interface IEditItemProps {
   currentItem: IRequest;
   getItems: () => Promise<IRequest[]>;
 }
+
+export interface IFiltersProps {
+  selectedStatus: string[];
+  setSelectedStatus: React.Dispatch<React.SetStateAction<string[]>>;
+  setTagsSearch: React.Dispatch<React.SetStateAction<string | undefined>>;
+}
+
 
 const columnHeaders = [
   { columnKey: "buttons", label: "" },
@@ -87,6 +94,12 @@ export const ListItems = (
     props.items[0]
   );
   const [tagsSearch, setTagsSearch] = React.useState<string>();
+  const [selectedStatus, setSelectedStatus] = React.useState([
+    "New",
+    "In Progress",
+    "Rejected",
+    "Approved",
+  ]);
 
   function edit(item: IRequest): void {
     showPopup();
@@ -121,81 +134,16 @@ export const ListItems = (
     sortDirection: getSortDirection(columnId),
   });
 
-  const statusNew = (
-    event: React.MouseEvent<HTMLElement>,
-    checked?: boolean
-  ): void => {
-    const arr: string[] = [...props.selectedStatus];
-    if (checked) {
-      arr.push("New");
-    } else {
-      arr.splice(props.selectedStatus.indexOf("New"), 1);
-    }
-    props.setSelectedStatus(arr);
-  };
-  const statusInProgress = (
-    event: React.MouseEvent<HTMLElement>,
-    checked?: boolean
-  ): void => {
-    const arr: string[] = [...props.selectedStatus];
-    if (checked) {
-      arr.push("In Progress");
-    } else {
-      arr.splice(props.selectedStatus.indexOf("In Progress"), 1);
-    }
-    props.setSelectedStatus(arr);
-  };
-  const statusApproved = (
-    event: React.MouseEvent<HTMLElement>,
-    checked?: boolean
-  ): void => {
-    const arr: string[] = [...props.selectedStatus];
-    if (checked) {
-      arr.push("Approved");
-    } else {
-      arr.splice(props.selectedStatus.indexOf("Approved"), 1);
-    }
-    props.setSelectedStatus(arr);
-  };
-  const statusRejected = (
-    event: React.MouseEvent<HTMLElement>,
-    checked?: boolean
-  ): void => {
-    const arr: string[] = [...props.selectedStatus];
-    if (checked) {
-      arr.push("Rejected");
-    } else {
-      arr.splice(props.selectedStatus.indexOf("Rejected"), 1);
-    }
-    props.setSelectedStatus(arr);
-  };
+
 
   const rows = sort(getRows());
   return (
     <>
-      <div className={styles.toggleBox}>
-        <div className={styles.toggle}>
-          <Toggle label="New" defaultChecked onChange={statusNew} />
-        </div>
-        <div className={styles.toggle}>
-          <Toggle
-            label="In Progress"
-            defaultChecked
-            onChange={statusInProgress}
-          />
-        </div>
-        <div className={styles.toggle}>
-          <Toggle label="Rejected" defaultChecked onChange={statusRejected} />
-        </div>
-        <div className={styles.toggle}>
-          <Toggle label="Approved" defaultChecked onChange={statusApproved} />
-        </div>
-      </div>
-      <TextField
-        label="Tags"
-        placeholder="search"
-        onChange={(e, value) => setTagsSearch(value)}
-      />
+    <Filters
+    selectedStatus={selectedStatus}
+    setSelectedStatus={setSelectedStatus}
+    setTagsSearch={setTagsSearch}
+    />
       <Table arial-label="Default table">
         <TableHeader>
           <TableRow>
@@ -217,7 +165,7 @@ export const ListItems = (
                   tag.Label.toLowerCase().indexOf(tagsSearch.toLowerCase()) !==
                   -1
               ).length !== 0) &&
-            props.selectedStatus.indexOf(item.Status) !== -1 ? (
+            selectedStatus.indexOf(item.Status) !== -1 ? (
               <TableRow key={item.Id}>
                 <TableCell style={{maxWidth: '20px'}}>
                   {item.Status === "New" ? (
@@ -293,7 +241,6 @@ export const ListItems = (
           )}
         </TableBody>
       </Table>
-      
       <EditItem
         context={props.context}
         requestTypes={props.requestTypes}

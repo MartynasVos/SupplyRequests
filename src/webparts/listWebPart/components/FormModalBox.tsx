@@ -88,6 +88,7 @@ export const FormModalBox = (
       }
     );
     hidePopup();
+    setSelectedDate(undefined);
     setSelectedRequestTypeId(undefined);
     setSelectedRequestAreaChoice(undefined);
   }

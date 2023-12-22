@@ -1,15 +1,14 @@
 import * as React from "react";
 import { Dialog, DialogType, DialogFooter } from "@fluentui/react/lib/Dialog";
-import { PrimaryButton, DefaultButton } from "@fluentui/react/lib/Button";
+import { DefaultButton } from "@fluentui/react/lib/Button";
 import { useBoolean } from "@fluentui/react-hooks";
 import { IDeleteItemProps } from "./EditItem";
 import { SPFx, spfi } from "@pnp/sp";
 
 const dialogContentProps = {
   type: DialogType.normal,
-  title: "Missing Subject",
+  title: "Are you sure you want to delete this request?",
   closeButtonAriaLabel: "Close",
-  subText: "Do you want to send this message without a subject?",
 };
 
 export const DeleteItem = (
@@ -43,7 +42,7 @@ export const DeleteItem = (
   return (
     <>
       <DefaultButton
-        style={{ backgroundColor: "#f00" }}
+        style={{ backgroundColor: "#f00", color: '#fff' }}
         onClick={toggleHideDialog}
         text="Delete"
       />
@@ -53,7 +52,8 @@ export const DeleteItem = (
         dialogContentProps={dialogContentProps}
       >
         <DialogFooter>
-          <PrimaryButton
+          <DefaultButton
+            style={{ backgroundColor: "#f00", color: '#fff' }}
             onClick={() => {
               toggleHideDialog();
               deleteItemFunction();
