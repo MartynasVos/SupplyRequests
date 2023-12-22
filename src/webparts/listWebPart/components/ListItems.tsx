@@ -45,8 +45,24 @@ export interface IFiltersProps {
   selectedStatus: string[];
   setSelectedStatus: React.Dispatch<React.SetStateAction<string[]>>;
   setTagsSearch: React.Dispatch<React.SetStateAction<string | undefined>>;
+  setTitleSearch: React.Dispatch<React.SetStateAction<string | undefined>>;
+  dueDateStart: string | undefined;
+  setDueDateStart: React.Dispatch<React.SetStateAction<string | undefined>>;
+  dueDateEnd: string | undefined;
+  setDueDateEnd: React.Dispatch<React.SetStateAction<string | undefined>>;
+  executionDateStart: string | undefined;
+  setExecutionDateStart: React.Dispatch<
+    React.SetStateAction<string | undefined>
+  >;
+  executionDateEnd: string | undefined;
+  setExecutionDateEnd: React.Dispatch<React.SetStateAction<string | undefined>>;
+  requestManagers: IComboBoxOption[] | undefined;
+  setManagerId: React.Dispatch<React.SetStateAction<number | undefined>>;
+  requestAreaChoices: IDropdownOption<unknown>[] | undefined;
+  requestTypes: IDropdownOption<unknown>[] | undefined;
+  setSelectedRequestTypeId: React.Dispatch<React.SetStateAction<number | undefined>>;
+  setSelectedRequestAreaChoice: React.Dispatch<React.SetStateAction<string | undefined>>;
 }
-
 
 const columnHeaders = [
   { columnKey: "buttons", label: "" },
@@ -89,22 +105,24 @@ export const ListItems = (
 ): React.ReactElement<unknown, React.JSXElementConstructor<unknown>> => {
   const [isPopupVisible, { setTrue: showPopup, setFalse: hidePopup }] =
     useBoolean(false);
-
   const [currentItem, setCurrentItem] = React.useState<IRequest>(
     props.items[0]
   );
   const [tagsSearch, setTagsSearch] = React.useState<string>();
+  const [titleSearch, setTitleSearch] = React.useState<string>();
+  const [dueDateStart, setDueDateStart] = React.useState<string>();
+  const [dueDateEnd, setDueDateEnd] = React.useState<string>();
+  const [executionDateStart, setExecutionDateStart] = React.useState<string>();
+  const [executionDateEnd, setExecutionDateEnd] = React.useState<string>();
+  const [managerId, setManagerId] = React.useState<number>();
+  const [selectedRequestTypeId, setSelectedRequestTypeId] = React.useState<number>();
+  const [selectedRequestAreaChoice, setSelectedRequestAreaChoice] = React.useState<string>();
   const [selectedStatus, setSelectedStatus] = React.useState([
     "New",
     "In Progress",
     "Rejected",
     "Approved",
   ]);
-
-  function edit(item: IRequest): void {
-    showPopup();
-    setCurrentItem(item);
-  }
 
   const items = props.items;
   const {
@@ -134,16 +152,29 @@ export const ListItems = (
     sortDirection: getSortDirection(columnId),
   });
 
-
-
   const rows = sort(getRows());
   return (
     <>
-    <Filters
-    selectedStatus={selectedStatus}
-    setSelectedStatus={setSelectedStatus}
-    setTagsSearch={setTagsSearch}
-    />
+      <Filters
+        selectedStatus={selectedStatus}
+        setSelectedStatus={setSelectedStatus}
+        setTagsSearch={setTagsSearch}
+        setTitleSearch={setTitleSearch}
+        dueDateStart={dueDateStart}
+        setDueDateStart={setDueDateStart}
+        dueDateEnd={dueDateEnd}
+        setDueDateEnd={setDueDateEnd}
+        executionDateStart={executionDateStart}
+        setExecutionDateStart={setExecutionDateStart}
+        executionDateEnd={executionDateEnd}
+        setExecutionDateEnd={setExecutionDateEnd}
+        requestManagers={props.requestManagers}
+        setManagerId={setManagerId}
+        requestAreaChoices={props.requestAreaChoices}
+        requestTypes={props.requestTypes}
+        setSelectedRequestTypeId={setSelectedRequestTypeId}
+        setSelectedRequestAreaChoice={setSelectedRequestAreaChoice}
+      />
       <Table arial-label="Default table">
         <TableHeader>
           <TableRow>
@@ -159,6 +190,22 @@ export const ListItems = (
         </TableHeader>
         <TableBody>
           {rows.map(({ item }) =>
+          (!selectedRequestAreaChoice || selectedRequestAreaChoice === item.RequestArea) &&
+          (!selectedRequestTypeId || selectedRequestTypeId === item.RequestTypeId) &&
+            (!managerId || managerId === item.Assigned_x0020_ManagerId) &&
+            (!executionDateEnd ||
+              moment(item.ExecutionDate).format("YYYY-MM-DD") <=
+                executionDateEnd) &&
+            (!executionDateStart ||
+              moment(item.ExecutionDate).format("YYYY-MM-DD") >=
+                executionDateStart) &&
+            (!dueDateEnd ||
+              moment(item.DueDate).format("YYYY-MM-DD") <= dueDateEnd) &&
+            (!dueDateStart ||
+              moment(item.DueDate).format("YYYY-MM-DD") >= dueDateStart) &&
+            (!titleSearch ||
+              item.Title.toLowerCase().indexOf(titleSearch.toLowerCase()) !==
+                -1) &&
             (!tagsSearch ||
               item.Tags.filter(
                 (tag: { Label: string }) =>
@@ -167,14 +214,15 @@ export const ListItems = (
               ).length !== 0) &&
             selectedStatus.indexOf(item.Status) !== -1 ? (
               <TableRow key={item.Id}>
-                <TableCell style={{maxWidth: '20px'}}>
+                <TableCell style={{ maxWidth: "20px" }}>
                   {item.Status === "New" ? (
-                      <Button
-                        onClick={() => {
-                          edit(item);
-                        }}
-                        icon={<EditRegular />}
-                      />
+                    <Button
+                      onClick={() => {
+                        showPopup();
+                        setCurrentItem(item);
+                      }}
+                      icon={<EditRegular />}
+                    />
                   ) : null}
                 </TableCell>
                 <TableCell>{item.Title}</TableCell>

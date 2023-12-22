@@ -11,7 +11,7 @@ import {
 } from "@fluentui/react";
 import { Dropdown, IDropdownOption } from "@fluentui/react/lib/Dropdown";
 import { useBoolean } from "@fluentui/react-hooks";
-import { IFormProps, IRequest } from "./List";
+import { IFormProps } from "./List";
 import { SPFx, spfi } from "@pnp/sp";
 import "@pnp/sp/fields";
 import { IItemAddResult } from "@pnp/sp/items";
@@ -69,12 +69,7 @@ export const FormModalBox = (
     };
     addItem().then(
       () => {
-        const getItems = async (): Promise<IRequest[]> => {
-          const sp = spfi().using(SPFx(props.context));
-          const items = await sp.web.lists.getByTitle("Requests").items();
-          return items;
-        };
-        getItems().then(
+        props.getItems().then(
           (result) => {
             props.setItems(result);
           },
@@ -92,6 +87,7 @@ export const FormModalBox = (
     setSelectedRequestTypeId(undefined);
     setSelectedRequestAreaChoice(undefined);
   }
+
   const onFormatDate = (date?: Date): string => {
     return !date
       ? ""
@@ -100,6 +96,7 @@ export const FormModalBox = (
           "YYYY-MM-DD"
         ).format("YYYY-MM-DD");
   };
+
   const setTags = (
     event: React.FormEvent<HTMLDivElement>,
     item: IDropdownOption
@@ -111,6 +108,7 @@ export const FormModalBox = (
         selectedTagsIds.splice(selectedTagsIds.indexOf(item.key), 1);
       }
   };
+
   return (
     <>
       <DefaultButton
@@ -161,7 +159,8 @@ export const FormModalBox = (
                   onChange={(e, item: IDropdownOption) =>
                     typeof item.key !== "string"
                       ? setSelectedRequestTypeId(item.key)
-                      : null}
+                      : null
+                  }
                   options={props.requestTypes}
                 />
                 {props.requestAreaChoices !== undefined ? (
@@ -169,7 +168,8 @@ export const FormModalBox = (
                     className={styles.modalFormField}
                     label="Request area"
                     onChange={(e, item: IDropdownOption) =>
-                      setSelectedRequestAreaChoice(item.text)}
+                      setSelectedRequestAreaChoice(item.text)
+                    }
                     options={props.requestAreaChoices}
                   />
                 ) : null}

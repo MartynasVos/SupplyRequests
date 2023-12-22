@@ -11,6 +11,7 @@ import {
   addDays,
   ComboBox,
   IComboBoxOption,
+  PrimaryButton,
 } from "@fluentui/react";
 
 import { Dropdown, IDropdownOption } from "@fluentui/react/lib/Dropdown";
@@ -53,7 +54,7 @@ export const EditItem = (
       tagIds.push(tag.TermGuid);
     });
     setSelectedTagsIds(tagIds);
-    setSelectedManagerId(undefined);
+    setSelectedManagerId(0);
   }
   function editItemFunction(): void {
     const title = (document.getElementById("title") as HTMLInputElement).value;
@@ -63,7 +64,7 @@ export const EditItem = (
     let status = "New";
     if (props.isRequestManager) {
       status = "In Progress";
-      if (selectedManagerId === undefined) {
+      if (selectedManagerId === 0) {
         return alert("Assigned Manager field is mandatory");
       }
     }
@@ -158,7 +159,7 @@ export const EditItem = (
                 />
                 <DatePicker
                   id="dueDate"
-                  className={styles.modalFormField}
+                  className={styles.formField}
                   label="Due Date"
                   isRequired
                   isMonthPickerVisible={false}
@@ -173,7 +174,7 @@ export const EditItem = (
                 {props.isRequestManager ? (
                   props.requestManagers !== undefined ? (
                     <ComboBox
-                      className={styles.modalFormField}
+                      className={styles.formField}
                       label="Assign a manager"
                       required
                       options={props.requestManagers}
@@ -187,7 +188,7 @@ export const EditItem = (
                   ) : null
                 ) : null}
                 <Dropdown
-                  className={styles.modalFormField}
+                  className={styles.formField}
                   label="Request Type"
                   required
                   defaultSelectedKey={selectedRequestTypeId}
@@ -200,7 +201,7 @@ export const EditItem = (
                 />
                 {props.requestAreaChoices !== undefined ? (
                   <Dropdown
-                    className={styles.modalFormField}
+                    className={styles.formField}
                     label="Request area"
                     defaultSelectedKey={selectedRequestAreaChoice}
                     onChange={(e, item: IDropdownOption) =>
@@ -210,7 +211,7 @@ export const EditItem = (
                   />
                 ) : null}
                 <Dropdown
-                  className={styles.modalFormField}
+                  className={styles.formField}
                   label="Tags"
                   defaultSelectedKeys={selectedTagsIds}
                   onChange={setTags}
@@ -218,15 +219,13 @@ export const EditItem = (
                   multiSelect
                 />
                 <div>
-                  <DefaultButton
+                  <PrimaryButton
                     onClick={() => {
                       editItemFunction();
                     }}
                   >
-                    {props.isRequestManager
-                      ? "Send to delivery department"
-                      : "Edit"}
-                  </DefaultButton>
+                    Update
+                  </PrimaryButton>
                   <DeleteItem
                     context={props.context}
                     setItems={props.setItems}
@@ -242,7 +241,6 @@ export const EditItem = (
                   >
                     Cancel
                   </DefaultButton>
-                  
                 </div>
               </div>
             </FocusTrapZone>

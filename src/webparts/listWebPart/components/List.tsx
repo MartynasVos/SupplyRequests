@@ -38,6 +38,7 @@ export interface IFormProps {
   taxonomy: IDropdownOption[];
   requestAreaChoices: IDropdownOption[] | undefined;
   setItems: React.Dispatch<React.SetStateAction<IRequest[]>>;
+  getItems: () => Promise<IRequest[]>;
 }
 export interface IRequest {
   Id: number;
@@ -150,7 +151,7 @@ export const List = (
     );
     getRequestManagers().then(
       (result) => {
-        const arr: IComboBoxOption[] = [];
+        const arr: IComboBoxOption[] = [{ key: 0, text: '' }];
         result.map((manager) => {
           arr.push({ key: manager.Id, text: manager.Title });
         });
@@ -187,6 +188,17 @@ export const List = (
   }, []);
   return (
     <div>
+      <FormModalBox
+        context={props.context}
+        items={itemsState}
+        requestTypes={requestTypes}
+        users={users}
+        isRequestManager={isRequestManager}
+        taxonomy={taxonomy}
+        requestAreaChoices={requestAreaChoices}
+        setItems={setItems}
+        getItems={getItems}
+      />
       <ListItems
         context={props.context}
         items={itemsState}
@@ -198,16 +210,6 @@ export const List = (
         requestAreaChoices={requestAreaChoices}
         setItems={setItems}
         getItems={getItems}
-      />
-      <FormModalBox
-        context={props.context}
-        items={itemsState}
-        requestTypes={requestTypes}
-        users={users}
-        isRequestManager={isRequestManager}
-        taxonomy={taxonomy}
-        requestAreaChoices={requestAreaChoices}
-        setItems={setItems}
       />
     </div>
   );
