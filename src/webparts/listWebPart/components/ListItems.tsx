@@ -1,6 +1,6 @@
 import * as React from "react";
 import { IListItemsProps } from "./List";
-import { EditRegular, DeleteRegular } from "@fluentui/react-icons";
+import { EditRegular } from "@fluentui/react-icons";
 import {
   TableBody,
   TableCell,
@@ -20,13 +20,11 @@ import {
 import { useBoolean } from "@fluentui/react-hooks";
 import { IRequest } from "./List";
 import { WebPartContext } from "@microsoft/sp-webpart-base";
-import { EditItems } from "./EditItem";
+import { EditItem } from "./EditItem";
 import * as moment from "moment";
-import { SPFx, spfi } from "@pnp/sp";
 import { IDropdownOption } from "@fluentui/react/lib/Dropdown";
 import { type IComboBoxOption, TextField } from "@fluentui/react";
 import { Toggle } from "@fluentui/react/lib/Toggle";
-
 import styles from "./ListWebPart.module.scss";
 
 export interface IEditItemProps {
@@ -90,46 +88,10 @@ export const ListItems = (
   const [tagsSearch, setTagsSearch] = React.useState<string>();
 
   function edit(item: IRequest): void {
-    if (item.Status !== "New") {
-      return alert("Can only edit request in status new");
-    }
     showPopup();
     setCurrentItem(item);
   }
-  function deleteItemFunction(item: IRequest): void {
-    if (item.Status !== "New") {
-      return alert("Can only delete request in status new");
-    }
-    if (!confirm("Are you sure you want to delete this request?")) {
-      return;
-    }
-    const deleteItem = async (): Promise<void> => {
-      const sp = spfi().using(SPFx(props.context));
-      const list = sp.web.lists.getByTitle("Requests");
-      const i = await list.items.getById(item.Id).delete();
-      console.log(i);
-    };
-    deleteItem().then(
-      () => {
-        const getItems = async (): Promise<IRequest[]> => {
-          const sp = spfi().using(SPFx(props.context));
-          const items = await sp.web.lists.getByTitle("Requests").items();
-          return items;
-        };
-        getItems().then(
-          (result) => {
-            props.setItems(result);
-          },
-          () => {
-            return;
-          }
-        );
-      },
-      () => {
-        return;
-      }
-    );
-  }
+
   const items = props.items;
   const {
     getRows,
@@ -257,16 +219,14 @@ export const ListItems = (
             props.selectedStatus.indexOf(item.Status) !== -1 ? (
               <TableRow key={item.Id}>
                 <TableCell>
-                  <Button
-                    onClick={() => deleteItemFunction(item)}
-                    icon={<DeleteRegular />}
-                  />
-                  <Button
-                    onClick={() => {
-                      edit(item);
-                    }}
-                    icon={<EditRegular />}
-                  />
+                  {item.Status === "New" ? (
+                      <Button
+                        onClick={() => {
+                          edit(item);
+                        }}
+                        icon={<EditRegular />}
+                      />
+                  ) : null}
                 </TableCell>
                 <TableCell>{item.Title}</TableCell>
                 <TableCell>
@@ -332,7 +292,8 @@ export const ListItems = (
           )}
         </TableBody>
       </Table>
-      <EditItems
+      
+      <EditItem
         context={props.context}
         requestTypes={props.requestTypes}
         taxonomy={props.taxonomy}

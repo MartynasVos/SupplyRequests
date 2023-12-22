@@ -12,15 +12,24 @@ import {
   ComboBox,
   IComboBoxOption,
 } from "@fluentui/react";
-import { Dropdown, IDropdownOption } from "@fluentui/react/lib/Dropdown";
 
+import { Dropdown, IDropdownOption } from "@fluentui/react/lib/Dropdown";
 import { SPFx, spfi } from "@pnp/sp";
 import { IRequest } from "./List";
 import * as moment from "moment";
-
 import styles from "./ListWebPart.module.scss";
+import { DeleteItem } from "./Text";
+import { WebPartContext } from "@microsoft/sp-webpart-base";
 
-export const EditItems = (
+export interface IDeleteItemProps {
+  context: WebPartContext;
+  setItems: React.Dispatch<React.SetStateAction<IRequest[]>>;
+  hidePopup: () => void;
+  currentItem: IRequest;
+  getItems: () => Promise<IRequest[]>;
+}
+
+export const EditItem = (
   props: IEditItemProps
 ): React.ReactElement<unknown, React.JSXElementConstructor<unknown>> => {
   const [selectedManagerId, setSelectedManagerId] = React.useState<number>();
@@ -33,6 +42,9 @@ export const EditItems = (
 
   React.useEffect(() => {
     setData();
+  }, [props.currentItem]);
+
+  function setData(): void {
     setSelectedDate(moment(props.currentItem?.DueDate).toDate());
     setSelectedRequestTypeId(props.currentItem?.RequestTypeId);
     setSelectedRequestAreaChoice(props.currentItem?.RequestArea);
@@ -42,22 +54,19 @@ export const EditItems = (
     });
     setSelectedTagsIds(tagIds);
     setSelectedManagerId(undefined);
-  }, [props.currentItem]);
-
-  function setData(): void {
-    console.log("first");
   }
 
+  const getItems = async (): Promise<IRequest[]> => {
+    const sp = spfi().using(SPFx(props.context));
+    const items = await sp.web.lists.getByTitle("Requests").items();
+    return items;
+  };
+
   function editItemFunction(): void {
-    let title = props.currentItem?.Title;
-    if (document.getElementById("title") !== null) {
-      title = (document.getElementById("title") as HTMLInputElement).value;
-    }
-    let description = props.currentItem?.Description;
-    if (document.getElementById("description") !== null) {
-      description = (document.getElementById("description") as HTMLInputElement)
-        .value;
-    }
+    const title = (document.getElementById("title") as HTMLInputElement).value;
+    const description = (
+      document.getElementById("description") as HTMLInputElement
+    ).value;
     let status = "New";
     if (props.isRequestManager) {
       status = "In Progress";
@@ -89,11 +98,6 @@ export const EditItems = (
 
     editItem().then(
       () => {
-        const getItems = async (): Promise<IRequest[]> => {
-          const sp = spfi().using(SPFx(props.context));
-          const items = await sp.web.lists.getByTitle("Requests").items();
-          return items;
-        };
         getItems().then(
           (result) => {
             props.setItems(result);
@@ -109,6 +113,15 @@ export const EditItems = (
     );
     props.hidePopup();
   }
+
+  const onFormatDate = (date?: Date): string => {
+    return !date
+      ? ""
+      : moment(
+          `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`,
+          "YYYY-MM-DD"
+        ).format("YYYY-MM-DD");
+  };
   const setTags = (
     event: React.FormEvent<HTMLDivElement>,
     item: IDropdownOption
@@ -120,16 +133,6 @@ export const EditItems = (
         selectedTagsIds.splice(selectedTagsIds.indexOf(item.key), 1);
       }
   };
-
-  const onFormatDate = (date?: Date): string => {
-    return !date
-      ? ""
-      : moment(
-          `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`,
-          "YYYY-MM-DD"
-        ).format("YYYY-MM-DD");
-  };
-
   return (
     <>
       {props.isPopupVisible && (
@@ -231,6 +234,13 @@ export const EditItems = (
                       ? "Send to delivery department"
                       : "Edit"}
                   </DefaultButton>
+                  <DeleteItem
+                    context={props.context}
+                    setItems={props.setItems}
+                    hidePopup={props.hidePopup}
+                    currentItem={props.currentItem}
+                    getItems={getItems}
+                  />
                   <DefaultButton
                     onClick={() => {
                       props.hidePopup();
@@ -239,6 +249,7 @@ export const EditItems = (
                   >
                     Cancel
                   </DefaultButton>
+                  
                 </div>
               </div>
             </FocusTrapZone>

@@ -9,17 +9,13 @@ import {
   addDays,
   TextField,
 } from "@fluentui/react";
-
 import { Dropdown, IDropdownOption } from "@fluentui/react/lib/Dropdown";
-
 import { useBoolean } from "@fluentui/react-hooks";
 import { IFormProps, IRequest } from "./List";
 import { SPFx, spfi } from "@pnp/sp";
 import "@pnp/sp/fields";
-
 import { IItemAddResult } from "@pnp/sp/items";
 import * as moment from "moment";
-
 import styles from "./ListWebPart.module.scss";
 
 export const FormModalBox = (
@@ -104,20 +100,6 @@ export const FormModalBox = (
           "YYYY-MM-DD"
         ).format("YYYY-MM-DD");
   };
-  const setRequestType = (
-    event: React.FormEvent<HTMLDivElement>,
-    item: IDropdownOption
-  ): void => {
-    if (typeof item.key !== "string") {
-      setSelectedRequestTypeId(item.key);
-    }
-  };
-  const setRequestAreaChoice = (
-    event: React.FormEvent<HTMLDivElement>,
-    item: IDropdownOption
-  ): void => {
-    setSelectedRequestAreaChoice(item.text);
-  };
   const setTags = (
     event: React.FormEvent<HTMLDivElement>,
     item: IDropdownOption
@@ -176,14 +158,18 @@ export const FormModalBox = (
                   className={styles.modalFormField}
                   label="Request Type"
                   required
-                  onChange={setRequestType}
+                  onChange={(e, item: IDropdownOption) =>
+                    typeof item.key !== "string"
+                      ? setSelectedRequestTypeId(item.key)
+                      : null}
                   options={props.requestTypes}
                 />
                 {props.requestAreaChoices !== undefined ? (
                   <Dropdown
                     className={styles.modalFormField}
                     label="Request area"
-                    onChange={setRequestAreaChoice}
+                    onChange={(e, item: IDropdownOption) =>
+                      setSelectedRequestAreaChoice(item.text)}
                     options={props.requestAreaChoices}
                   />
                 ) : null}
