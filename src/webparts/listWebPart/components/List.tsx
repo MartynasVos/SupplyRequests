@@ -207,17 +207,20 @@ export const List = (
   }, []);
   return (
     <div>
-      <FormModalBox
-        context={props.context}
-        items={itemsState}
-        requestTypes={requestTypes}
-        users={users}
-        isRequestManager={isRequestManager}
-        taxonomy={taxonomy}
-        requestAreaChoices={requestAreaChoices}
-        setItems={setItems}
-        getItems={getItems}
-      />
+      {isRequestManager ? (
+        <FormModalBox
+          context={props.context}
+          items={itemsState}
+          requestTypes={requestTypes}
+          users={users}
+          isRequestManager={isRequestManager}
+          taxonomy={taxonomy}
+          requestAreaChoices={requestAreaChoices}
+          setItems={setItems}
+          getItems={getItems}
+        />
+      ) : null}
+
       <ListItems
         context={props.context}
         items={itemsState}

@@ -160,7 +160,6 @@ export const Filters = (
         />
         <DefaultButton className={styles.clearButton} onClick={clearFilters} text="Clear Filters" />
       </div>
-      
     </>
   );
 };

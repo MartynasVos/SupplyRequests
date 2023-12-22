@@ -114,11 +114,7 @@ export const FormModalBox = (
     <>
       <DefaultButton
         onClick={() => {
-          if (props.isRequestManager) {
-            return alert("Managers can't create new requests");
-          } else {
             showPopup();
-          }
         }}
         text="Create New Request"
       />
