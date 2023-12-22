@@ -120,7 +120,7 @@ export const FormModalBox = (
             showPopup();
           }
         }}
-        text="Add Request"
+        text="Create New Request"
       />
       {isPopupVisible && (
         <Layer>
@@ -182,7 +182,7 @@ export const FormModalBox = (
                   autoComplete="on"
                   onChange={setTags}
                 />
-                <div>
+                <div className={styles.formButtonsContainer}>
                   <DefaultButton
                     className={styles.primaryBtn}
                     onClick={() => {

@@ -218,7 +218,7 @@ export const EditItem = (
                   autoComplete="on"
                   onChange={setTags}
                 />
-                <div className={styles.buttonsContainer}>
+                <div className={styles.editButtonsContainer}>
                   <PrimaryButton
                     onClick={() => {
                       editItemFunction();

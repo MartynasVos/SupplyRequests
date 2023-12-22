@@ -1,10 +1,10 @@
 import * as React from "react";
-import { Toggle } from "@fluentui/react/lib/Toggle";
 import styles from "./ListWebPart.module.scss";
 import { IFiltersProps } from "./ListItems";
 import {
   ComboBox,
   DatePicker,
+  DefaultButton,
   Dropdown,
   IComboBoxOption,
   IDropdownOption,
@@ -16,54 +16,6 @@ import * as moment from "moment";
 export const Filters = (
   props: IFiltersProps
 ): React.ReactElement<unknown, React.JSXElementConstructor<unknown>> => {
-  const statusNew = (
-    event: React.MouseEvent<HTMLElement>,
-    checked?: boolean
-  ): void => {
-    const arr: string[] = [...props.selectedStatus];
-    if (checked) {
-      arr.push("New");
-    } else {
-      arr.splice(props.selectedStatus.indexOf("New"), 1);
-    }
-    props.setSelectedStatus(arr);
-  };
-  const statusInProgress = (
-    event: React.MouseEvent<HTMLElement>,
-    checked?: boolean
-  ): void => {
-    const arr: string[] = [...props.selectedStatus];
-    if (checked) {
-      arr.push("In Progress");
-    } else {
-      arr.splice(props.selectedStatus.indexOf("In Progress"), 1);
-    }
-    props.setSelectedStatus(arr);
-  };
-  const statusApproved = (
-    event: React.MouseEvent<HTMLElement>,
-    checked?: boolean
-  ): void => {
-    const arr: string[] = [...props.selectedStatus];
-    if (checked) {
-      arr.push("Approved");
-    } else {
-      arr.splice(props.selectedStatus.indexOf("Approved"), 1);
-    }
-    props.setSelectedStatus(arr);
-  };
-  const statusRejected = (
-    event: React.MouseEvent<HTMLElement>,
-    checked?: boolean
-  ): void => {
-    const arr: string[] = [...props.selectedStatus];
-    if (checked) {
-      arr.push("Rejected");
-    } else {
-      arr.splice(props.selectedStatus.indexOf("Rejected"), 1);
-    }
-    props.setSelectedStatus(arr);
-  };
   const onFormatDate = (date?: Date): string => {
     return !date
       ? ""
@@ -72,20 +24,32 @@ export const Filters = (
           "YYYY-MM-DD"
         ).format("YYYY-MM-DD");
   };
+  function clearFilters(): void {
+    props.setTitleSearch('')
+    props.setTagsSearch('')
+    props.setManagerId(undefined)
+    props.setSelectedRequestTypeId(undefined)
+    props.setSelectedRequestAreaChoice('')
+    props.setSelectedStatus('')
+    props.setDueDateStart(undefined)
+    props.setDueDateEnd(undefined)
+    props.setExecutionDateStart(undefined)
+    props.setExecutionDateEnd(undefined)
+  }
   return (
     <>
       <div className={styles.filtersContainer}>
         <TextField
           className={styles.filterField}
-          label="Tags"
-          placeholder="search"
-          onChange={(e, value) => props.setTagsSearch(value)}
-        />
-        <TextField
-          className={styles.filterField}
           label="Title"
           placeholder="search"
           onChange={(e, value) => props.setTitleSearch(value)}
+        />
+        <TextField
+          className={styles.filterField}
+          label="Tags"
+          placeholder="search"
+          onChange={(e, value) => props.setTagsSearch(value)}
         />
         {props.requestManagers !== undefined ? (
           <ComboBox
@@ -123,6 +87,17 @@ export const Filters = (
               props.setSelectedRequestAreaChoice(item.text)
             }
             options={props.requestAreaChoices}
+          />
+        ) : null}
+        {props.statusChoices !== undefined ? (
+          <Dropdown
+            className={styles.filterField}
+            label="Status"
+            placeholder="select status"
+            onChange={(e, item: IDropdownOption) =>
+              props.setSelectedStatus(item.text)
+            }
+            options={props.statusChoices}
           />
         ) : null}
       </div>
@@ -183,25 +158,9 @@ export const Filters = (
           }
           formatDate={onFormatDate}
         />
+        <DefaultButton className={styles.clearButton} onClick={clearFilters} text="Clear Filters" />
       </div>
-      <div className={styles.toggleContainer}>
-        <div className={styles.toggle}>
-          <Toggle label="New" defaultChecked onChange={statusNew} />
-        </div>
-        <div className={styles.toggle}>
-          <Toggle
-            label="In Progress"
-            defaultChecked
-            onChange={statusInProgress}
-          />
-        </div>
-        <div className={styles.toggle}>
-          <Toggle label="Rejected" defaultChecked onChange={statusRejected} />
-        </div>
-        <div className={styles.toggle}>
-          <Toggle label="Approved" defaultChecked onChange={statusApproved} />
-        </div>
-      </div>
+      
     </>
   );
 };

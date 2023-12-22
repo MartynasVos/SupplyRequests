@@ -1,23 +1,20 @@
 @import "~@fluentui/react/dist/sass/References.scss";
 
-.toggleContainer {
-  display: flex;
-}
-.toggle {
-  margin-right: 30px;
-}
-.dateContainer {
-  display: flex;
-}
 .filtersContainer {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
 }
 .filterField {
-  width: 250px;
+  width: 200px;
   margin: 10px;
 }
-
+.dateContainer {
+  display: flex;
+  align-items: center; 
+}
+.clearButton {
+  margin-bottom: -3px;
+}
 .tagsCell {
   display: flex;
   flex-wrap: wrap;
@@ -81,7 +78,12 @@
   width: 300px;
   margin-bottom: 40px;
 }
-.buttonsContainer {
+.formButtonsContainer {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  column-gap: 10px;
+}
+.editButtonsContainer {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   column-gap: 10px;

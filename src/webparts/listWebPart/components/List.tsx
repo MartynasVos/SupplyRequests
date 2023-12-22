@@ -26,6 +26,7 @@ export interface IListItemsProps {
   requestManagers: IComboBoxOption[] | undefined;
   taxonomy: IDropdownOption[];
   requestAreaChoices: IDropdownOption[] | undefined;
+  statusChoices: IDropdownOption[] | undefined;
   setItems: React.Dispatch<React.SetStateAction<IRequest[]>>;
   getItems: () => Promise<IRequest[]>;
 }
@@ -70,6 +71,7 @@ export const List = (
   const [taxonomy, setTaxonomy] = React.useState<IDropdownOption[]>([]);
   const [requestAreaChoices, setRequestAreaChoices] =
     React.useState<IDropdownOption[]>();
+  const [statusChoices, setStatusChoices] = React.useState<IDropdownOption[]>();
 
   const sp = spfi().using(SPFx(props.context));
   const getItems = async (): Promise<IRequest[]> => {
@@ -77,9 +79,7 @@ export const List = (
     return items;
   };
   const getRequestTypes = async (): Promise<IRequestTypes[]> => {
-    const requestTypes = await sp.web.lists
-      .getByTitle("Request type")
-      .items();
+    const requestTypes = await sp.web.lists.getByTitle("Request type").items();
     return requestTypes;
   };
   const getUsers = async (): Promise<ISiteUserInfo[]> => {
@@ -101,10 +101,17 @@ export const List = (
       .terms();
     return info;
   };
-  const getChoiceField = async (): Promise<IFieldInfo[]> => {
+  const getRequestAreaChoiceField = async (): Promise<IFieldInfo[]> => {
     const choiceField = await sp.web.lists
       .getByTitle("Requests")
       .fields.filter("Title eq 'Request Area'")
+      .select("Choices")();
+    return choiceField;
+  };
+  const getStatusField = async (): Promise<IFieldInfo[]> => {
+    const choiceField = await sp.web.lists
+      .getByTitle("Requests")
+      .fields.filter("Title eq 'Status'")
       .select("Choices")();
     return choiceField;
   };
@@ -173,13 +180,25 @@ export const List = (
         return;
       }
     );
-    getChoiceField().then(
+    getRequestAreaChoiceField().then(
       (result) => {
-        const arr: IDropdownOption[] = [{ key: 0, text: '' }];
+        const arr: IDropdownOption[] = [{ key: 0, text: "" }];
         result[0].Choices?.map((choice) => {
           arr.push({ key: choice, text: choice });
         });
         setRequestAreaChoices(arr);
+      },
+      () => {
+        return;
+      }
+    );
+    getStatusField().then(
+      (result) => {
+        const arr: IDropdownOption[] = [{ key: 0, text: "" }];
+        result[0].Choices?.map((choice) => {
+          arr.push({ key: choice, text: choice });
+        });
+        setStatusChoices(arr);
       },
       () => {
         return;
@@ -208,6 +227,7 @@ export const List = (
         requestManagers={requestManagers}
         taxonomy={taxonomy}
         requestAreaChoices={requestAreaChoices}
+        statusChoices={statusChoices}
         setItems={setItems}
         getItems={getItems}
       />

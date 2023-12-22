@@ -42,8 +42,8 @@ export interface IEditItemProps {
 }
 
 export interface IFiltersProps {
-  selectedStatus: string[];
-  setSelectedStatus: React.Dispatch<React.SetStateAction<string[]>>;
+  setSelectedStatus: React.Dispatch<React.SetStateAction<string>>;
+  statusChoices: IDropdownOption<unknown>[] | undefined;
   setTagsSearch: React.Dispatch<React.SetStateAction<string | undefined>>;
   setTitleSearch: React.Dispatch<React.SetStateAction<string | undefined>>;
   dueDateStart: string | undefined;
@@ -117,12 +117,7 @@ export const ListItems = (
   const [managerId, setManagerId] = React.useState<number>();
   const [selectedRequestTypeId, setSelectedRequestTypeId] = React.useState<number>();
   const [selectedRequestAreaChoice, setSelectedRequestAreaChoice] = React.useState<string>();
-  const [selectedStatus, setSelectedStatus] = React.useState([
-    "New",
-    "In Progress",
-    "Rejected",
-    "Approved",
-  ]);
+  const [selectedStatus, setSelectedStatus] = React.useState<string>();
 
   const items = props.items;
   const {
@@ -156,8 +151,8 @@ export const ListItems = (
   return (
     <>
       <Filters
-        selectedStatus={selectedStatus}
         setSelectedStatus={setSelectedStatus}
+        statusChoices={props.statusChoices}
         setTagsSearch={setTagsSearch}
         setTitleSearch={setTitleSearch}
         dueDateStart={dueDateStart}
@@ -190,6 +185,7 @@ export const ListItems = (
         </TableHeader>
         <TableBody>
           {rows.map(({ item }) =>
+          (!selectedStatus || selectedStatus === item.Status) &&
           (!selectedRequestAreaChoice || selectedRequestAreaChoice === item.RequestArea) &&
           (!selectedRequestTypeId || selectedRequestTypeId === item.RequestTypeId) &&
             (!managerId || managerId === item.Assigned_x0020_ManagerId) &&
@@ -211,8 +207,7 @@ export const ListItems = (
                 (tag: { Label: string }) =>
                   tag.Label.toLowerCase().indexOf(tagsSearch.toLowerCase()) !==
                   -1
-              ).length !== 0) &&
-            selectedStatus.indexOf(item.Status) !== -1 ? (
+              ).length !== 0) ? (
               <TableRow key={item.Id}>
                 <TableCell style={{ maxWidth: "20px" }}>
                   {item.Status === "New" ? (
@@ -260,11 +255,11 @@ export const ListItems = (
                     : "-"}
                 </TableCell>
                 <TableCell>
-                  {
+                  {props.requestTypes !== null ?
                     props.requestTypes.filter(
-                      (type) => type.key !== 0 && type.key === item.RequestTypeId
+                      (type) => type.key === item.RequestTypeId
                     )[0].text
-                  }
+                   : null}
                 </TableCell>
                 <TableCell>{item.RequestArea}</TableCell>
                 <TableCell>
