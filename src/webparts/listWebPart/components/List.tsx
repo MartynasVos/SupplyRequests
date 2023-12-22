@@ -35,7 +35,6 @@ export interface IFormProps {
   items: IRequest[];
   requestTypes: IDropdownOption[];
   users: ISiteUserInfo[];
-  isRequestManager: boolean;
   taxonomy: IDropdownOption[];
   requestAreaChoices: IDropdownOption[] | undefined;
   setItems: React.Dispatch<React.SetStateAction<IRequest[]>>;
@@ -207,13 +206,12 @@ export const List = (
   }, []);
   return (
     <div>
-      {isRequestManager ? (
+      {!isRequestManager ? (
         <FormModalBox
           context={props.context}
           items={itemsState}
           requestTypes={requestTypes}
           users={users}
-          isRequestManager={isRequestManager}
           taxonomy={taxonomy}
           requestAreaChoices={requestAreaChoices}
           setItems={setItems}
