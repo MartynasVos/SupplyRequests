@@ -143,7 +143,7 @@ export const FormModalBox = (
                 />
                 <DatePicker
                   placeholder="Select a date..."
-                  className={styles.modalFormField}
+                  className={styles.formField}
                   label="Due Date"
                   isRequired
                   isMonthPickerVisible={false}
@@ -153,7 +153,7 @@ export const FormModalBox = (
                   formatDate={onFormatDate}
                 />
                 <Dropdown
-                  className={styles.modalFormField}
+                  className={styles.formField}
                   label="Request Type"
                   required
                   onChange={(e, item: IDropdownOption) =>
@@ -165,7 +165,7 @@ export const FormModalBox = (
                 />
                 {props.requestAreaChoices !== undefined ? (
                   <Dropdown
-                    className={styles.modalFormField}
+                    className={styles.formField}
                     label="Request area"
                     onChange={(e, item: IDropdownOption) =>
                       setSelectedRequestAreaChoice(item.text)
@@ -174,7 +174,7 @@ export const FormModalBox = (
                   />
                 ) : null}
                 <Dropdown
-                  className={styles.modalFormField}
+                  className={styles.formField}
                   label="Tags"
                   onChange={setTags}
                   options={props.taxonomy}

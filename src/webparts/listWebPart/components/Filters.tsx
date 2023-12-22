@@ -76,19 +76,60 @@ export const Filters = (
     <>
       <div className={styles.filtersContainer}>
         <TextField
+          className={styles.filterField}
           label="Tags"
           placeholder="search"
           onChange={(e, value) => props.setTagsSearch(value)}
         />
         <TextField
+          className={styles.filterField}
           label="Title"
           placeholder="search"
           onChange={(e, value) => props.setTitleSearch(value)}
         />
+        {props.requestManagers !== undefined ? (
+          <ComboBox
+            className={styles.filterField}
+            label="Assigned manager"
+            placeholder="select Assigned manager"
+            options={props.requestManagers}
+            autoComplete="on"
+            onItemClick={(e, option: IComboBoxOption) =>
+              typeof option.key !== "string"
+                ? props.setManagerId(option.key)
+                : null
+            }
+          />
+        ) : null}
+        {props.requestTypes !== undefined ? (
+          <Dropdown
+            className={styles.filterField}
+            label="Request Type"
+            placeholder="select request type"
+            onChange={(e, item: IDropdownOption) =>
+              typeof item.key !== "string"
+                ? props.setSelectedRequestTypeId(item.key)
+                : null
+            }
+            options={props.requestTypes}
+          />
+        ) : null}
+        {props.requestAreaChoices !== undefined ? (
+          <Dropdown
+            className={styles.filterField}
+            label="Request area"
+            placeholder="select request area"
+            onChange={(e, item: IDropdownOption) =>
+              props.setSelectedRequestAreaChoice(item.text)
+            }
+            options={props.requestAreaChoices}
+          />
+        ) : null}
       </div>
       <Label>Due Date</Label>
       <div className={styles.dateContainer}>
         <DatePicker
+          className={styles.filterField}
           placeholder="from"
           isMonthPickerVisible={false}
           onSelectDate={(date: Date) =>
@@ -100,6 +141,7 @@ export const Filters = (
           formatDate={onFormatDate}
         />
         <DatePicker
+          className={styles.filterField}
           placeholder="to"
           isMonthPickerVisible={false}
           onSelectDate={(date: Date) =>
@@ -114,6 +156,7 @@ export const Filters = (
       <Label>Execution Date</Label>
       <div className={styles.dateContainer}>
         <DatePicker
+          className={styles.filterField}
           placeholder="from"
           isMonthPickerVisible={false}
           onSelectDate={(date: Date) =>
@@ -127,6 +170,7 @@ export const Filters = (
           formatDate={onFormatDate}
         />
         <DatePicker
+          className={styles.filterField}
           placeholder="to"
           isMonthPickerVisible={false}
           onSelectDate={(date: Date) =>
@@ -140,45 +184,6 @@ export const Filters = (
           formatDate={onFormatDate}
         />
       </div>
-      <div>
-        {props.requestManagers !== undefined ? (
-          <ComboBox
-            className={styles.formField}
-            label="Assigned manager"
-            placeholder="select Assigned manager"
-            options={props.requestManagers}
-            autoComplete="on"
-            onItemClick={(e, option: IComboBoxOption) =>
-              typeof option.key !== "string"
-                ? props.setManagerId(option.key)
-                : null
-            }
-          />
-        ) : null}
-      </div>
-      {props.requestTypes !== undefined ?
-      <Dropdown
-        className={styles.formField}
-        label="Request Type"
-        placeholder="select request type"
-        onChange={(e, item: IDropdownOption) =>
-          typeof item.key !== "string"
-            ? props.setSelectedRequestTypeId(item.key)
-            : null
-        }
-        options={props.requestTypes}
-      /> : null}
-      {props.requestAreaChoices !== undefined ? (
-        <Dropdown
-          className={styles.formField}
-          label="Request area"
-          placeholder="select request area"
-          onChange={(e, item: IDropdownOption) =>
-            props.setSelectedRequestAreaChoice(item.text)
-          }
-          options={props.requestAreaChoices}
-        />
-      ) : null}
       <div className={styles.toggleContainer}>
         <div className={styles.toggle}>
           <Toggle label="New" defaultChecked onChange={statusNew} />

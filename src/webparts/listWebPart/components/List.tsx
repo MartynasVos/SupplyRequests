@@ -119,7 +119,7 @@ export const List = (
     );
     getRequestTypes().then(
       (result) => {
-        const arr: IDropdownOption[] = [];
+        const arr: IDropdownOption[] = [{ key: 0, text: '' }];
         result.map((type) => {
           arr.push({ key: type.Id, text: type.Title });
         });
@@ -175,7 +175,7 @@ export const List = (
     );
     getChoiceField().then(
       (result) => {
-        const arr: IDropdownOption[] = [];
+        const arr: IDropdownOption[] = [{ key: 0, text: '' }];
         result[0].Choices?.map((choice) => {
           arr.push({ key: choice, text: choice });
         });

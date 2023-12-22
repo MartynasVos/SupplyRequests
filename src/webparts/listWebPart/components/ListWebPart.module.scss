@@ -12,6 +12,13 @@
 .filtersContainer {
   display: flex;
 }
+.filterField {
+  width: 300px;
+  margin: 10px;
+}
+
+
+
 .tagsCell {
   display: flex;
   flex-wrap: wrap;

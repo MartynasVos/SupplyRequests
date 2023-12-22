@@ -261,7 +261,7 @@ export const ListItems = (
                 <TableCell>
                   {
                     props.requestTypes.filter(
-                      (type) => type.key === item.RequestTypeId
+                      (type) => type.key !== 0 && type.key === item.RequestTypeId
                     )[0].text
                   }
                 </TableCell>
