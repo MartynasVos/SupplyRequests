@@ -12,6 +12,7 @@ import {
   ComboBox,
   IComboBoxOption,
   PrimaryButton,
+  IComboBox,
 } from "@fluentui/react";
 
 import { Dropdown, IDropdownOption } from "@fluentui/react/lib/Dropdown";
@@ -117,14 +118,14 @@ export const EditItem = (
         ).format("YYYY-MM-DD");
   };
   const setTags = (
-    event: React.FormEvent<HTMLDivElement>,
-    item: IDropdownOption
+    event: React.FormEvent<IComboBox>,
+    option?: IComboBoxOption
   ): void => {
-    if (typeof item.key === "string")
-      if (selectedTagsIds.indexOf(item.key) === -1) {
-        selectedTagsIds.push(item.key);
+    if (option && typeof option.key === "string")
+      if (selectedTagsIds.indexOf(option.key) === -1) {
+        selectedTagsIds.push(option.key);
       } else {
-        selectedTagsIds.splice(selectedTagsIds.indexOf(item.key), 1);
+        selectedTagsIds.splice(selectedTagsIds.indexOf(option.key), 1);
       }
   };
   return (
@@ -210,15 +211,14 @@ export const EditItem = (
                     options={props.requestAreaChoices}
                   />
                 ) : null}
-                <Dropdown
+                <ComboBox
                   className={styles.formField}
                   label="Tags"
-                  defaultSelectedKeys={selectedTagsIds}
-                  onChange={setTags}
                   options={props.taxonomy}
-                  multiSelect
+                  autoComplete="on"
+                  onChange={setTags}
                 />
-                <div>
+                <div className={styles.buttonsContainer}>
                   <PrimaryButton
                     onClick={() => {
                       editItemFunction();

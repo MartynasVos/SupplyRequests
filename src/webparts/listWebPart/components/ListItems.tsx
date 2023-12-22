@@ -244,6 +244,7 @@ export const ListItems = (
                   }
                 </TableCell>
                 <TableCell>
+                  {console.log(item.Assigned_x0020_ManagerId)}
                   {item.Assigned_x0020_ManagerId !== null
                     ? props.users.filter((user) => {
                         return user.Id === item.Assigned_x0020_ManagerId;

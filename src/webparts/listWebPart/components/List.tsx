@@ -119,7 +119,7 @@ export const List = (
     );
     getRequestTypes().then(
       (result) => {
-        const arr: IDropdownOption[] = [{ key: 0, text: '' }];
+        const arr: IDropdownOption[] = [];
         result.map((type) => {
           arr.push({ key: type.Id, text: type.Title });
         });
@@ -151,7 +151,7 @@ export const List = (
     );
     getRequestManagers().then(
       (result) => {
-        const arr: IComboBoxOption[] = [{ key: 0, text: '' }];
+        const arr: IComboBoxOption[] = [];
         result.map((manager) => {
           arr.push({ key: manager.Id, text: manager.Title });
         });

@@ -10,14 +10,13 @@
   display: flex;
 }
 .filtersContainer {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
 }
 .filterField {
-  width: 300px;
+  width: 250px;
   margin: 10px;
 }
-
-
 
 .tagsCell {
   display: flex;
@@ -82,7 +81,11 @@
   width: 300px;
   margin-bottom: 40px;
 }
-
+.buttonsContainer {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: 10px;
+}
 .primaryBtn {
   background-color: blue;
   color: white;

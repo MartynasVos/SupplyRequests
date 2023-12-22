@@ -8,6 +8,9 @@ import {
   DatePicker,
   addDays,
   TextField,
+  ComboBox,
+  IComboBoxOption,
+  IComboBox,
 } from "@fluentui/react";
 import { Dropdown, IDropdownOption } from "@fluentui/react/lib/Dropdown";
 import { useBoolean } from "@fluentui/react-hooks";
@@ -24,7 +27,7 @@ export const FormModalBox = (
   const [isPopupVisible, { setTrue: showPopup, setFalse: hidePopup }] =
     useBoolean(false);
 
-  const [selectedTagsIds] = React.useState<string[]>([]);
+  const [selectedTagsIds, setSelectedTagsIds] = React.useState<string[]>([]);
   const [selectedDate, setSelectedDate] = React.useState<Date>();
   const [selectedRequestAreaChoice, setSelectedRequestAreaChoice] =
     React.useState<string>();
@@ -86,6 +89,7 @@ export const FormModalBox = (
     setSelectedDate(undefined);
     setSelectedRequestTypeId(undefined);
     setSelectedRequestAreaChoice(undefined);
+    setSelectedTagsIds([])
   }
 
   const onFormatDate = (date?: Date): string => {
@@ -97,15 +101,12 @@ export const FormModalBox = (
         ).format("YYYY-MM-DD");
   };
 
-  const setTags = (
-    event: React.FormEvent<HTMLDivElement>,
-    item: IDropdownOption
-  ): void => {
-    if (typeof item.key === "string")
-      if (selectedTagsIds.indexOf(item.key) === -1) {
-        selectedTagsIds.push(item.key);
+  const setTags = (event: React.FormEvent<IComboBox>, option?: IComboBoxOption): void => {
+    if (option && typeof option.key === "string")
+      if (selectedTagsIds.indexOf(option.key) === -1) {
+        selectedTagsIds.push(option.key);
       } else {
-        selectedTagsIds.splice(selectedTagsIds.indexOf(item.key), 1);
+        selectedTagsIds.splice(selectedTagsIds.indexOf(option.key), 1);
       }
   };
 
@@ -173,12 +174,13 @@ export const FormModalBox = (
                     options={props.requestAreaChoices}
                   />
                 ) : null}
-                <Dropdown
+                <ComboBox
                   className={styles.formField}
-                  label="Tags"
-                  onChange={setTags}
-                  options={props.taxonomy}
                   multiSelect
+                  label="Tags"
+                  options={props.taxonomy}
+                  autoComplete="on"
+                  onChange={setTags}
                 />
                 <div>
                   <DefaultButton
@@ -195,6 +197,7 @@ export const FormModalBox = (
                       setSelectedDate(undefined);
                       setSelectedRequestTypeId(undefined);
                       setSelectedRequestAreaChoice(undefined);
+                      setSelectedTagsIds([]);
                     }}
                   >
                     Cancel
