@@ -15,7 +15,6 @@ import {
   useTableSort,
   TableColumnId,
   SortDirection,
-  TableCellLayout,
 } from "@fluentui/react-components";
 import { useBoolean } from "@fluentui/react-hooks";
 import { IRequest } from "./List";
@@ -60,8 +59,12 @@ export interface IFiltersProps {
   setManagerId: React.Dispatch<React.SetStateAction<number | undefined>>;
   requestAreaChoices: IDropdownOption<unknown>[] | undefined;
   requestTypes: IDropdownOption<unknown>[] | undefined;
-  setSelectedRequestTypeId: React.Dispatch<React.SetStateAction<number | undefined>>;
-  setSelectedRequestAreaChoice: React.Dispatch<React.SetStateAction<string | undefined>>;
+  setSelectedRequestTypeId: React.Dispatch<
+    React.SetStateAction<number | undefined>
+  >;
+  setSelectedRequestAreaChoice: React.Dispatch<
+    React.SetStateAction<string | undefined>
+  >;
 }
 
 const columnHeaders = [
@@ -115,8 +118,10 @@ export const ListItems = (
   const [executionDateStart, setExecutionDateStart] = React.useState<string>();
   const [executionDateEnd, setExecutionDateEnd] = React.useState<string>();
   const [managerId, setManagerId] = React.useState<number>();
-  const [selectedRequestTypeId, setSelectedRequestTypeId] = React.useState<number>();
-  const [selectedRequestAreaChoice, setSelectedRequestAreaChoice] = React.useState<string>();
+  const [selectedRequestTypeId, setSelectedRequestTypeId] =
+    React.useState<number>();
+  const [selectedRequestAreaChoice, setSelectedRequestAreaChoice] =
+    React.useState<string>();
   const [selectedStatus, setSelectedStatus] = React.useState<string>();
 
   const items = props.items;
@@ -170,11 +175,16 @@ export const ListItems = (
         setSelectedRequestTypeId={setSelectedRequestTypeId}
         setSelectedRequestAreaChoice={setSelectedRequestAreaChoice}
       />
-      <Table arial-label="Default table">
+      <Table arial-label="Default table" noNativeElements={true}>
         <TableHeader>
           <TableRow>
             {columnHeaders.map((column) => (
               <TableHeaderCell
+                className={
+                  column.columnKey === "buttons"
+                    ? styles.tableButtons
+                    : undefined
+                }
                 {...headerSortProps(column.columnKey)}
                 key={column.columnKey}
               >
@@ -185,9 +195,11 @@ export const ListItems = (
         </TableHeader>
         <TableBody>
           {rows.map(({ item }) =>
-          (!selectedStatus || selectedStatus === item.Status) &&
-          (!selectedRequestAreaChoice || selectedRequestAreaChoice === item.RequestArea) &&
-          (!selectedRequestTypeId || selectedRequestTypeId === item.RequestTypeId) &&
+            (!selectedStatus || selectedStatus === item.Status) &&
+            (!selectedRequestAreaChoice ||
+              selectedRequestAreaChoice === item.RequestArea) &&
+            (!selectedRequestTypeId ||
+              selectedRequestTypeId === item.RequestTypeId) &&
             (!managerId || managerId === item.Assigned_x0020_ManagerId) &&
             (!executionDateEnd ||
               moment(item.ExecutionDate).format("YYYY-MM-DD") <=
@@ -209,7 +221,7 @@ export const ListItems = (
                   -1
               ).length !== 0) ? (
               <TableRow key={item.Id}>
-                <TableCell style={{ maxWidth: "20px" }}>
+                <TableCell className={styles.tableButtons}>
                   {item.Status === "New" ? (
                     <Button
                       onClick={() => {
@@ -239,7 +251,8 @@ export const ListItems = (
                   }
                 </TableCell>
                 <TableCell>
-                  {item.Assigned_x0020_ManagerId !== null && item.Assigned_x0020_ManagerId !== 0
+                  {item.Assigned_x0020_ManagerId !== null &&
+                  item.Assigned_x0020_ManagerId !== 0
                     ? props.users.filter((user) => {
                         return user.Id === item.Assigned_x0020_ManagerId;
                       })[0].Title
@@ -254,30 +267,26 @@ export const ListItems = (
                     : "-"}
                 </TableCell>
                 <TableCell>
-                  {props.requestTypes !== null ?
-                    props.requestTypes.filter(
-                      (type) => type.key === item.RequestTypeId
-                    )[0].text
-                   : null}
+                  {props.requestTypes !== null
+                    ? props.requestTypes.filter(
+                        (type) => type.key === item.RequestTypeId
+                      )[0].text
+                    : null}
                 </TableCell>
                 <TableCell>{item.RequestArea}</TableCell>
-                <TableCell>
-                  <TableCellLayout>
-                    <div className={styles.tagsCell}>
-                      {item.Tags.map(
-                        (
-                          tag: { Label: string },
-                          index: React.Key | null | undefined
-                        ) => {
-                          return (
-                            <div className={styles.tag} key={index}>
-                              {tag.Label}
-                            </div>
-                          );
-                        }
-                      )}
-                    </div>
-                  </TableCellLayout>
+                <TableCell className={styles.tagsCell}>
+                  {item.Tags.map(
+                    (
+                      tag: { Label: string },
+                      index: React.Key | null | undefined
+                    ) => {
+                      return (
+                        <div className={styles.tag} key={index}>
+                          {tag.Label}
+                        </div>
+                      );
+                    }
+                  )}
                 </TableCell>
               </TableRow>
             ) : null

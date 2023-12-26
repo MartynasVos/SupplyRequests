@@ -26,6 +26,7 @@
     "@pnp/sp-admin": "^3.21.0",
     "@pnp/spfx-controls-react": "3.16.0",
     "moment": "^2.29.4",
+    "office-ui-fabric-core": "^11.1.0",
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "sp-pnp-js": "^3.0.10",

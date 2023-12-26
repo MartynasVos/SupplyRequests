@@ -62,6 +62,7 @@ export const FormModalBox = (
           RequestTypeId: selectedRequestTypeId,
           RequestArea: selectedRequestAreaChoice,
         });
+        console.log(selectedTagsIds)
       const fields = await sp.web.lists
         .getByTitle("Requests")
         .fields.filter("Title eq 'Tags_0'")

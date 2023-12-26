@@ -15,7 +15,7 @@ import { FormModalBox } from "./FormModalBox";
 import { IFieldInfo } from "@pnp/sp/fields";
 import "@pnp/sp/site-groups/web";
 import { IDropdownOption } from "@fluentui/react/lib/Dropdown";
-import type { IComboBoxOption } from "@fluentui/react";
+import { type IComboBoxOption } from "@fluentui/react";
 
 export interface IListItemsProps {
   context: WebPartContext;
@@ -115,6 +115,11 @@ export const List = (
     return choiceField;
   };
   React.useEffect(() => {
+
+    Promise.all([getItems(), getRequestTypes(), getUsers(), getUserGroup(), getTaxonomy(), getRequestAreaChoiceField(), getStatusField()]).then((values) => {
+       // console.log(values)
+    }, () => {return})
+
     getItems().then(
       (result) => {
         setItems(result);
