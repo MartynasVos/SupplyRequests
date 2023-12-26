@@ -19,10 +19,10 @@ import {
 import { useBoolean } from "@fluentui/react-hooks";
 import { IRequest } from "./List";
 import { WebPartContext } from "@microsoft/sp-webpart-base";
-import { EditItem } from "./EditItem";
+import { EditItem } from "./RequestForm";
 import * as moment from "moment";
 import { IDropdownOption } from "@fluentui/react/lib/Dropdown";
-import { type IComboBoxOption } from "@fluentui/react";
+import { DefaultButton, type IComboBoxOption } from "@fluentui/react";
 import styles from "./ListWebPart.module.scss";
 import { Filters } from "./Filters";
 
@@ -36,11 +36,12 @@ export interface IEditItemProps {
   isPopupVisible: boolean;
   requestManagers: IComboBoxOption[] | undefined;
   isRequestManager: boolean;
-  currentItem: IRequest;
+  currentItem: IRequest | undefined;
   getItems: () => Promise<IRequest[]>;
 }
 
 export interface IFiltersProps {
+  selectedStatus: string | undefined;
   setSelectedStatus: React.Dispatch<React.SetStateAction<string>>;
   statusChoices: IDropdownOption<unknown>[] | undefined;
   setTagsSearch: React.Dispatch<React.SetStateAction<string | undefined>>;
@@ -59,9 +60,11 @@ export interface IFiltersProps {
   setManagerId: React.Dispatch<React.SetStateAction<number | undefined>>;
   requestAreaChoices: IDropdownOption<unknown>[] | undefined;
   requestTypes: IDropdownOption<unknown>[] | undefined;
+  selectedRequestTypeId: number | undefined;
   setSelectedRequestTypeId: React.Dispatch<
     React.SetStateAction<number | undefined>
   >;
+  selectedRequestAreaChoice: string | undefined;
   setSelectedRequestAreaChoice: React.Dispatch<
     React.SetStateAction<string | undefined>
   >;
@@ -108,9 +111,7 @@ export const ListItems = (
 ): React.ReactElement<unknown, React.JSXElementConstructor<unknown>> => {
   const [isPopupVisible, { setTrue: showPopup, setFalse: hidePopup }] =
     useBoolean(false);
-  const [currentItem, setCurrentItem] = React.useState<IRequest>(
-    props.items[0]
-  );
+  const [currentItem, setCurrentItem] = React.useState<IRequest>();
   const [tagsSearch, setTagsSearch] = React.useState<string>();
   const [titleSearch, setTitleSearch] = React.useState<string>();
   const [dueDateStart, setDueDateStart] = React.useState<string>();
@@ -156,6 +157,7 @@ export const ListItems = (
   return (
     <>
       <Filters
+        selectedStatus={selectedStatus}
         setSelectedStatus={setSelectedStatus}
         statusChoices={props.statusChoices}
         setTagsSearch={setTagsSearch}
@@ -172,7 +174,9 @@ export const ListItems = (
         setManagerId={setManagerId}
         requestAreaChoices={props.requestAreaChoices}
         requestTypes={props.requestTypes}
+        selectedRequestTypeId={selectedRequestTypeId}
         setSelectedRequestTypeId={setSelectedRequestTypeId}
+        selectedRequestAreaChoice={selectedRequestAreaChoice}
         setSelectedRequestAreaChoice={setSelectedRequestAreaChoice}
       />
       <Table arial-label="Default table" noNativeElements={true}>
@@ -252,7 +256,8 @@ export const ListItems = (
                 </TableCell>
                 <TableCell>
                   {item.Assigned_x0020_ManagerId !== null &&
-                  item.Assigned_x0020_ManagerId !== 0
+                  item.Assigned_x0020_ManagerId !== 0 &&
+                  props.users[0] !== undefined
                     ? props.users.filter((user) => {
                         return user.Id === item.Assigned_x0020_ManagerId;
                       })[0].Title
@@ -266,8 +271,9 @@ export const ListItems = (
                     ? moment(item.ExecutionDate).format("YYYY-MM-DD")
                     : "-"}
                 </TableCell>
+                
                 <TableCell>
-                  {props.requestTypes !== null
+                  {props.requestTypes[0] !== undefined
                     ? props.requestTypes.filter(
                         (type) => type.key === item.RequestTypeId
                       )[0].text
@@ -293,6 +299,15 @@ export const ListItems = (
           )}
         </TableBody>
       </Table>
+      {!props.isRequestManager ? (
+        <DefaultButton
+          onClick={() => {
+            showPopup();
+            setCurrentItem(undefined);
+          }}
+          text="Create New Request"
+        />
+      ) : null}
       <EditItem
         context={props.context}
         requestTypes={props.requestTypes}
@@ -306,6 +321,7 @@ export const ListItems = (
         currentItem={currentItem}
         getItems={props.getItems}
       />
+      
     </>
   );
 };

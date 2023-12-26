@@ -84,14 +84,11 @@
   margin-bottom: 40px;
 }
 .formButtonsContainer {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  display: flex;
   column-gap: 10px;
 }
-.editButtonsContainer {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  column-gap: 10px;
+.formButtonsContainer > * {
+  width: 100%;
 }
 .primaryBtn {
   background-color: blue;

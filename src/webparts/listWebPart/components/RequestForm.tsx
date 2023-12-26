@@ -22,6 +22,7 @@ import * as moment from "moment";
 import styles from "./ListWebPart.module.scss";
 import { DeleteItem } from "./DeleteItem";
 import { WebPartContext } from "@microsoft/sp-webpart-base";
+import { IItemAddResult } from "@pnp/sp/items";
 
 export interface IDeleteItemProps {
   context: WebPartContext;
@@ -47,15 +48,78 @@ export const EditItem = (
   }, [props.currentItem]);
 
   function setData(): void {
-    setSelectedDate(moment(props.currentItem?.DueDate).toDate());
-    setSelectedRequestTypeId(props.currentItem?.RequestTypeId);
-    setSelectedRequestAreaChoice(props.currentItem?.RequestArea);
+    setSelectedDate(
+      props.currentItem ? moment(props.currentItem.DueDate).toDate() : undefined
+    );
+    setSelectedRequestTypeId(
+      props.currentItem ? props.currentItem.RequestTypeId : undefined
+    );
+    setSelectedRequestAreaChoice(
+      props.currentItem ? props.currentItem.RequestArea : undefined
+    );
     const tagIds: string[] = [];
     props.currentItem?.Tags.map((tag: { TermGuid: string }) => {
       tagIds.push(tag.TermGuid);
     });
     setSelectedTagsIds(tagIds);
     setSelectedManagerId(0);
+  }
+  function addItemFunction(): void {
+    const title = (document.getElementById("title") as HTMLInputElement).value;
+    const description = (
+      document.getElementById("description") as HTMLInputElement
+    ).value;
+    if (title === "") {
+      return alert("Title field is mandatory");
+    }
+    if (description === "") {
+      return alert("Description field is mandatory");
+    }
+    if (selectedDate === undefined) {
+      return alert("Due date field is mandatory");
+    }
+    if (selectedRequestTypeId === undefined) {
+      return alert("Request type field is mandatory");
+    }
+    const sp = spfi().using(SPFx(props.context));
+    const addItem = async (): Promise<void> => {
+      const iar: IItemAddResult = await sp.web.lists
+        .getByTitle("Requests")
+        .items.add({
+          Title: title,
+          Description: description,
+          DueDate: selectedDate,
+          RequestTypeId: selectedRequestTypeId,
+          RequestArea: selectedRequestAreaChoice,
+        });
+      const fields = await sp.web.lists
+        .getByTitle("Requests")
+        .fields.filter("Title eq 'Tags_0'")
+        .select("Title", "InternalName")();
+      const updateTags: { [key: string]: unknown } = {};
+      updateTags[fields[0].InternalName] = selectedTagsIds.join(";");
+      await iar.item.update(updateTags);
+    };
+    addItem().then(
+      () => {
+        props.getItems().then(
+          (result) => {
+            props.setItems(result);
+          },
+          () => {
+            return;
+          }
+        );
+      },
+      () => {
+        return;
+      }
+    );
+    props.hidePopup();
+    setSelectedDate(undefined);
+    setSelectedRequestTypeId(undefined);
+    setSelectedRequestAreaChoice(undefined);
+    setSelectedTagsIds([]);
   }
   function editItemFunction(): void {
     const title = (document.getElementById("title") as HTMLInputElement).value;
@@ -72,23 +136,25 @@ export const EditItem = (
     const editItem = async (): Promise<void> => {
       const sp = spfi().using(SPFx(props.context));
       const list = sp.web.lists.getByTitle("Requests");
-      const i = await list.items.getById(props.currentItem.Id).update({
-        Title: title,
-        Description: description,
-        DueDate: selectedDate,
-        Assigned_x0020_ManagerId: selectedManagerId,
-        RequestTypeId: selectedRequestTypeId,
-        RequestArea: selectedRequestAreaChoice,
-        Status: status,
-      });
-      const fields = await sp.web.lists
-        .getByTitle("Requests")
-        .fields.filter("Title eq 'Tags_0'")
-        .select("Title", "InternalName")();
-      const updateTags: { [key: string]: unknown } = {};
-      updateTags[fields[0].InternalName] = selectedTagsIds.join(";");
-      await i.item.update(updateTags);
-      console.log(i);
+      if (props.currentItem !== undefined) {
+        const i = await list.items.getById(props.currentItem.Id).update({
+          Title: title,
+          Description: description,
+          DueDate: selectedDate,
+          Assigned_x0020_ManagerId: selectedManagerId,
+          RequestTypeId: selectedRequestTypeId,
+          RequestArea: selectedRequestAreaChoice,
+          Status: status,
+        });
+        const fields = await sp.web.lists
+          .getByTitle("Requests")
+          .fields.filter("Title eq 'Tags_0'")
+          .select("Title", "InternalName")();
+        const updateTags: { [key: string]: unknown } = {};
+        updateTags[fields[0].InternalName] = selectedTagsIds.join(";");
+        await i.item.update(updateTags);
+        console.log(i);
+      }
     };
 
     editItem().then(
@@ -159,8 +225,8 @@ export const EditItem = (
                   defaultValue={props.currentItem?.Description}
                 />
                 <DatePicker
-                  id="dueDate"
                   className={styles.formField}
+                  placeholder="Select a date..."
                   label="Due Date"
                   isRequired
                   isMonthPickerVisible={false}
@@ -212,27 +278,43 @@ export const EditItem = (
                   />
                 ) : null}
                 <ComboBox
+                  multiSelect
                   className={styles.formField}
                   label="Tags"
                   options={props.taxonomy}
                   autoComplete="on"
                   onChange={setTags}
                 />
-                <div className={styles.editButtonsContainer}>
-                  <PrimaryButton
-                    onClick={() => {
-                      editItemFunction();
-                    }}
-                  >
-                    Update
-                  </PrimaryButton>
-                  <DeleteItem
-                    context={props.context}
-                    setItems={props.setItems}
-                    hidePopup={props.hidePopup}
-                    currentItem={props.currentItem}
-                    getItems={props.getItems}
-                  />
+                <div className={styles.formButtonsContainer}>
+                  {props.currentItem !== undefined ? (
+                    <PrimaryButton
+                      className={styles.primaryBtn}
+                      onClick={() => {
+                        editItemFunction();
+                      }}
+                    >
+                      Update
+                    </PrimaryButton>
+                  ) : (
+                    <PrimaryButton
+                      className={styles.primaryBtn}
+                      onClick={() => {
+                        addItemFunction();
+                      }}
+                    >
+                      Save
+                    </PrimaryButton>
+                  )}
+
+                  {props.currentItem !== undefined ? (
+                    <DeleteItem
+                      context={props.context}
+                      setItems={props.setItems}
+                      hidePopup={props.hidePopup}
+                      currentItem={props.currentItem}
+                      getItems={props.getItems}
+                    />
+                  ) : null}
                   <DefaultButton
                     onClick={() => {
                       props.hidePopup();

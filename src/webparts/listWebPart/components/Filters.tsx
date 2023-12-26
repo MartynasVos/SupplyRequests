@@ -76,6 +76,7 @@ export const Filters = (
                 : null
             }
             options={props.requestTypes}
+            selectedKey={props.selectedRequestTypeId === undefined ? null : props.selectedRequestTypeId}
           />
         ) : null}
         {props.requestAreaChoices !== undefined ? (
@@ -87,6 +88,7 @@ export const Filters = (
               props.setSelectedRequestAreaChoice(item.text)
             }
             options={props.requestAreaChoices}
+            selectedKey={props.selectedRequestAreaChoice === undefined ? null : props.selectedRequestAreaChoice}
           />
         ) : null}
         {props.statusChoices !== undefined ? (
@@ -98,6 +100,7 @@ export const Filters = (
               props.setSelectedStatus(item.text)
             }
             options={props.statusChoices}
+            selectedKey={props.selectedStatus === undefined ? null : props.selectedStatus}
           />
         ) : null}
       </div>

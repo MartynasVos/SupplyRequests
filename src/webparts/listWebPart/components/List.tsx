@@ -4,6 +4,7 @@ import "@pnp/sp/webs";
 import "@pnp/sp/lists";
 import "@pnp/sp/items";
 import "@pnp/sp/site-users/web";
+import "@pnp/sp/fields";
 import "@pnp/sp/taxonomy";
 import { ITermInfo } from "@pnp/sp/taxonomy";
 import { ISiteUserInfo } from "@pnp/sp/site-users/types";
@@ -11,7 +12,6 @@ import { IDetailsListProps } from "./ListWebPart";
 import { ListItems } from "./ListItems";
 import { WebPartContext } from "@microsoft/sp-webpart-base";
 import { ISiteGroupInfo } from "@pnp/sp/site-groups/types";
-import { FormModalBox } from "./FormModalBox";
 import { IFieldInfo } from "@pnp/sp/fields";
 import "@pnp/sp/site-groups/web";
 import { IDropdownOption } from "@fluentui/react/lib/Dropdown";
@@ -27,16 +27,6 @@ export interface IListItemsProps {
   taxonomy: IDropdownOption[];
   requestAreaChoices: IDropdownOption[] | undefined;
   statusChoices: IDropdownOption[] | undefined;
-  setItems: React.Dispatch<React.SetStateAction<IRequest[]>>;
-  getItems: () => Promise<IRequest[]>;
-}
-export interface IFormProps {
-  context: WebPartContext;
-  items: IRequest[];
-  requestTypes: IDropdownOption[];
-  users: ISiteUserInfo[];
-  taxonomy: IDropdownOption[];
-  requestAreaChoices: IDropdownOption[] | undefined;
   setItems: React.Dispatch<React.SetStateAction<IRequest[]>>;
   getItems: () => Promise<IRequest[]>;
 }
@@ -115,51 +105,51 @@ export const List = (
     return choiceField;
   };
   React.useEffect(() => {
-
-    Promise.all([getItems(), getRequestTypes(), getUsers(), getUserGroup(), getTaxonomy(), getRequestAreaChoiceField(), getStatusField()]).then((values) => {
-       // console.log(values)
-    }, () => {return})
-
-    getItems().then(
-      (result) => {
-        setItems(result);
-      },
-      () => {
-        return;
-      }
-    );
-    getRequestTypes().then(
-      (result) => {
-        const arr: IDropdownOption[] = [];
-        result.map((type) => {
-          arr.push({ key: type.Id, text: type.Title });
+    Promise.all([
+      getItems(),
+      getUsers(),
+      getUserGroup(),
+      getRequestTypes(),
+      getTaxonomy(),
+      getRequestAreaChoiceField(),
+      getStatusField(),
+    ]).then(
+      (values) => {
+        setItems(values[0]);
+        setUsers(values[1]);
+        if (
+          values[2].filter((group) => group.Title === "Request Managers")
+            .length !== 0
+        ) {
+          setIsRequestManager(true);
+        }
+        const requestTypesOptions: IDropdownOption[] = [];
+        values[3].map((type) => {
+          requestTypesOptions.push({ key: type.Id, text: type.Title });
         });
-        setRequestTypes(arr);
-      },
-      () => {
-        return;
-      }
-    );
-    getUsers().then(
-      (result) => {
-        setUsers(result);
-      },
-      () => {
-        return;
-      }
-    );
-    getUserGroup().then(
-      (result) => {
-        result.map((group) => {
-          if (group.Title === "Request Managers") {
-            setIsRequestManager(true);
-          }
+        setRequestTypes(requestTypesOptions);
+        const tagOptions: IDropdownOption[] = [];
+        values[4].map((tag) => {
+          tagOptions.push({ key: tag.id, text: tag.labels[0].name });
         });
+        setTaxonomy(tagOptions);
+        const requestAreaOptions: IDropdownOption[] = [{ key: 0, text: "" }];
+        values[5][0].Choices?.map((choice) => {
+          requestAreaOptions.push({ key: choice, text: choice });
+        });
+        
+        setRequestAreaChoices(requestAreaOptions);
+        const statusOptions: IDropdownOption[] = [{ key: 0, text: "" }];
+        values[6][0].Choices?.map((choice) => {
+          statusOptions.push({ key: choice, text: choice });
+        });
+        setStatusChoices(statusOptions);
       },
       () => {
         return;
       }
     );
+    
     getRequestManagers().then(
       (result) => {
         const arr: IComboBoxOption[] = [];
@@ -172,58 +162,9 @@ export const List = (
         return;
       }
     );
-    getTaxonomy().then(
-      (result) => {
-        const arr: IDropdownOption[] = [];
-        result.map((tag) => {
-          arr.push({ key: tag.id, text: tag.labels[0].name });
-        });
-        setTaxonomy(arr);
-      },
-      () => {
-        return;
-      }
-    );
-    getRequestAreaChoiceField().then(
-      (result) => {
-        const arr: IDropdownOption[] = [{ key: 0, text: "" }];
-        result[0].Choices?.map((choice) => {
-          arr.push({ key: choice, text: choice });
-        });
-        setRequestAreaChoices(arr);
-      },
-      () => {
-        return;
-      }
-    );
-    getStatusField().then(
-      (result) => {
-        const arr: IDropdownOption[] = [{ key: 0, text: "" }];
-        result[0].Choices?.map((choice) => {
-          arr.push({ key: choice, text: choice });
-        });
-        setStatusChoices(arr);
-      },
-      () => {
-        return;
-      }
-    );
   }, []);
   return (
     <div>
-      {!isRequestManager ? (
-        <FormModalBox
-          context={props.context}
-          items={itemsState}
-          requestTypes={requestTypes}
-          users={users}
-          taxonomy={taxonomy}
-          requestAreaChoices={requestAreaChoices}
-          setItems={setItems}
-          getItems={getItems}
-        />
-      ) : null}
-
       <ListItems
         context={props.context}
         items={itemsState}

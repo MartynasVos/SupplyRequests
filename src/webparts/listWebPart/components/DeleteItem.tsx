@@ -2,7 +2,7 @@ import * as React from "react";
 import { Dialog, DialogType, DialogFooter } from "@fluentui/react/lib/Dialog";
 import { DefaultButton } from "@fluentui/react/lib/Button";
 import { useBoolean } from "@fluentui/react-hooks";
-import { IDeleteItemProps } from "./EditItem";
+import { IDeleteItemProps } from "./RequestForm";
 import { SPFx, spfi } from "@pnp/sp";
 
 const dialogContentProps = {
