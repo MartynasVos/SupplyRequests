@@ -179,6 +179,15 @@ export const ListItems = (
         selectedRequestAreaChoice={selectedRequestAreaChoice}
         setSelectedRequestAreaChoice={setSelectedRequestAreaChoice}
       />
+      {!props.isRequestManager ? (
+        <DefaultButton
+          onClick={() => {
+            showPopup();
+            setCurrentItem(undefined);
+          }}
+          text="Create New Request"
+        />
+      ) : null}
       <Table arial-label="Default table" noNativeElements={true}>
         <TableHeader>
           <TableRow>
@@ -299,15 +308,6 @@ export const ListItems = (
           )}
         </TableBody>
       </Table>
-      {!props.isRequestManager ? (
-        <DefaultButton
-          onClick={() => {
-            showPopup();
-            setCurrentItem(undefined);
-          }}
-          text="Create New Request"
-        />
-      ) : null}
       <EditItem
         context={props.context}
         requestTypes={props.requestTypes}
@@ -321,7 +321,6 @@ export const ListItems = (
         currentItem={currentItem}
         getItems={props.getItems}
       />
-      
     </>
   );
 };

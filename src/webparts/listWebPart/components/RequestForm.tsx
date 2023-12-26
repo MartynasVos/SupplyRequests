@@ -62,7 +62,7 @@ export const EditItem = (
       tagIds.push(tag.TermGuid);
     });
     setSelectedTagsIds(tagIds);
-    setSelectedManagerId(0);
+    setSelectedManagerId(props.currentItem?.Assigned_x0020_ManagerId);
   }
   function addItemFunction(): void {
     const title = (document.getElementById("title") as HTMLInputElement).value;
@@ -119,6 +119,7 @@ export const EditItem = (
     setSelectedDate(undefined);
     setSelectedRequestTypeId(undefined);
     setSelectedRequestAreaChoice(undefined);
+    setSelectedManagerId(undefined)
     setSelectedTagsIds([]);
   }
   function editItemFunction(): void {
@@ -242,7 +243,8 @@ export const EditItem = (
                   props.requestManagers !== undefined ? (
                     <ComboBox
                       className={styles.formField}
-                      label="Assign a manager"
+                      label="Assigned manager"
+                      placeholder="Assign a manger"
                       required
                       options={props.requestManagers}
                       autoComplete="on"
@@ -251,12 +253,14 @@ export const EditItem = (
                           ? setSelectedManagerId(option.key)
                           : null
                       }
+                      defaultSelectedKey={selectedManagerId}
                     />
                   ) : null
                 ) : null}
                 <Dropdown
                   className={styles.formField}
                   label="Request Type"
+                  placeholder="select request type"
                   required
                   defaultSelectedKey={selectedRequestTypeId}
                   onChange={(e, item: IDropdownOption) =>
@@ -270,20 +274,24 @@ export const EditItem = (
                   <Dropdown
                     className={styles.formField}
                     label="Request area"
+                    placeholder="select request area"
                     defaultSelectedKey={selectedRequestAreaChoice}
                     onChange={(e, item: IDropdownOption) =>
                       setSelectedRequestAreaChoice(item.text)
                     }
                     options={props.requestAreaChoices}
+                    selectedKey={selectedRequestAreaChoice === undefined ? null : selectedRequestAreaChoice}
                   />
                 ) : null}
                 <ComboBox
                   multiSelect
+                  placeholder="type to add tags"
                   className={styles.formField}
                   label="Tags"
                   options={props.taxonomy}
                   autoComplete="on"
                   onChange={setTags}
+                  selectedKey={selectedTagsIds}
                 />
                 <div className={styles.formButtonsContainer}>
                   {props.currentItem !== undefined ? (
