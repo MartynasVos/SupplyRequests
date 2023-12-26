@@ -86,8 +86,9 @@
 .formButtonsContainer {
   display: flex;
   column-gap: 10px;
+  margin-bottom: 10px;
 }
-.formButtonsContainer > * {
+.formButtonsContainer > *, .formButtonsContainer > *:active {
   width: 100%;
 }
 .primaryBtn {

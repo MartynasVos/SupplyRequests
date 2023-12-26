@@ -19,14 +19,14 @@ import {
 import { useBoolean } from "@fluentui/react-hooks";
 import { IRequest } from "./List";
 import { WebPartContext } from "@microsoft/sp-webpart-base";
-import { EditItem } from "./RequestForm";
+import { RequestForm } from "./RequestForm";
 import * as moment from "moment";
 import { IDropdownOption } from "@fluentui/react/lib/Dropdown";
 import { DefaultButton, type IComboBoxOption } from "@fluentui/react";
 import styles from "./ListWebPart.module.scss";
 import { Filters } from "./Filters";
 
-export interface IEditItemProps {
+export interface IRequestFormProps {
   context: WebPartContext;
   requestTypes: IDropdownOption[];
   taxonomy: IDropdownOption[];
@@ -308,7 +308,7 @@ export const ListItems = (
           )}
         </TableBody>
       </Table>
-      <EditItem
+      <RequestForm
         context={props.context}
         requestTypes={props.requestTypes}
         taxonomy={props.taxonomy}

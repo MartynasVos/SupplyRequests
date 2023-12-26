@@ -1,5 +1,5 @@
 import * as React from "react";
-import { IEditItemProps } from "./ListItems";
+import { IRequestFormProps } from "./ListItems";
 import {
   DatePicker,
   DefaultButton,
@@ -32,8 +32,8 @@ export interface IDeleteItemProps {
   getItems: () => Promise<IRequest[]>;
 }
 
-export const EditItem = (
-  props: IEditItemProps
+export const RequestForm = (
+  props: IRequestFormProps
 ): React.ReactElement<unknown, React.JSXElementConstructor<unknown>> => {
   const [selectedManagerId, setSelectedManagerId] = React.useState<number>();
   const [selectedDate, setSelectedDate] = React.useState<Date>();
@@ -119,7 +119,7 @@ export const EditItem = (
     setSelectedDate(undefined);
     setSelectedRequestTypeId(undefined);
     setSelectedRequestAreaChoice(undefined);
-    setSelectedManagerId(undefined)
+    setSelectedManagerId(undefined);
     setSelectedTagsIds([]);
   }
   function editItemFunction(): void {
@@ -127,10 +127,9 @@ export const EditItem = (
     const description = (
       document.getElementById("description") as HTMLInputElement
     ).value;
-    let status = "New";
+
     if (props.isRequestManager) {
-      status = "In Progress";
-      if (selectedManagerId === 0) {
+      if (selectedManagerId === undefined) {
         return alert("Assigned Manager field is mandatory");
       }
     }
@@ -145,7 +144,6 @@ export const EditItem = (
           Assigned_x0020_ManagerId: selectedManagerId,
           RequestTypeId: selectedRequestTypeId,
           RequestArea: selectedRequestAreaChoice,
-          Status: status,
         });
         const fields = await sp.web.lists
           .getByTitle("Requests")
@@ -157,7 +155,6 @@ export const EditItem = (
         console.log(i);
       }
     };
-
     editItem().then(
       () => {
         props.getItems().then(
@@ -175,7 +172,40 @@ export const EditItem = (
     );
     props.hidePopup();
   }
-
+  function sendToDeliveryDepartment(): void {
+    if (props.isRequestManager) {
+      if (selectedManagerId === null || selectedManagerId === undefined) {
+        return alert("Assigned Manager field is mandatory");
+      }
+    }
+    const editItem = async (): Promise<void> => {
+      const sp = spfi().using(SPFx(props.context));
+      const list = sp.web.lists.getByTitle("Requests");
+      if (props.currentItem !== undefined) {
+        const i = await list.items.getById(props.currentItem.Id).update({
+          Assigned_x0020_ManagerId: selectedManagerId,
+          Status: 'In Progress'
+        });
+        console.log(i);
+      }
+    };
+    editItem().then(
+      () => {
+        props.getItems().then(
+          (result) => {
+            props.setItems(result);
+          },
+          () => {
+            return;
+          }
+        );
+      },
+      () => {
+        return;
+      }
+    );
+    props.hidePopup();
+  }
   const onFormatDate = (date?: Date): string => {
     return !date
       ? ""
@@ -280,7 +310,11 @@ export const EditItem = (
                       setSelectedRequestAreaChoice(item.text)
                     }
                     options={props.requestAreaChoices}
-                    selectedKey={selectedRequestAreaChoice === undefined ? null : selectedRequestAreaChoice}
+                    selectedKey={
+                      selectedRequestAreaChoice === undefined
+                        ? null
+                        : selectedRequestAreaChoice
+                    }
                   />
                 ) : null}
                 <ComboBox
@@ -313,7 +347,6 @@ export const EditItem = (
                       Save
                     </PrimaryButton>
                   )}
-
                   {props.currentItem !== undefined ? (
                     <DeleteItem
                       context={props.context}
@@ -332,6 +365,15 @@ export const EditItem = (
                     Cancel
                   </DefaultButton>
                 </div>
+                {props.isRequestManager ? (
+                    <DefaultButton
+                      onClick={() => {
+                        sendToDeliveryDepartment()
+                      }}
+                    >
+                      Send to delivery department
+                    </DefaultButton>
+                  ) : null}
               </div>
             </FocusTrapZone>
           </Popup>
