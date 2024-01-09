@@ -13,8 +13,10 @@ import {
   IComboBoxOption,
   PrimaryButton,
   IComboBox,
+  Dialog,
+  DialogType,
+  DialogFooter,
 } from "@fluentui/react";
-
 import { Dropdown, IDropdownOption } from "@fluentui/react/lib/Dropdown";
 import { SPFx, spfi } from "@pnp/sp";
 import { IRequest } from "./List";
@@ -23,6 +25,7 @@ import styles from "./ListWebPart.module.scss";
 import { DeleteItem } from "./DeleteItem";
 import { WebPartContext } from "@microsoft/sp-webpart-base";
 import { IItemAddResult } from "@pnp/sp/items";
+import { useBoolean } from "@fluentui/react-hooks";
 
 export interface IDeleteItemProps {
   context: WebPartContext;
@@ -35,6 +38,13 @@ export interface IDeleteItemProps {
 export const RequestForm = (
   props: IRequestFormProps
 ): React.ReactElement<unknown, React.JSXElementConstructor<unknown>> => {
+  const [hideDialog, { toggle: toggleHideDialog }] = useBoolean(true);
+  const [errorMessage, setErrorMessage] = React.useState<string>('');
+  const dialogContentProps = {
+    type: DialogType.normal,
+    title: errorMessage,
+    closeButtonAriaLabel: "Close",
+  };
   const [selectedManagerId, setSelectedManagerId] = React.useState<number>();
   const [selectedDate, setSelectedDate] = React.useState<Date>();
   const [selectedRequestTypeId, setSelectedRequestTypeId] =
@@ -70,16 +80,20 @@ export const RequestForm = (
       document.getElementById("description") as HTMLInputElement
     ).value;
     if (title === "") {
-      return alert("Title field is mandatory");
+      setErrorMessage('Title Field is mandatory')
+      return toggleHideDialog();
     }
     if (description === "") {
-      return alert("Description field is mandatory");
+      setErrorMessage('Description Field is mandatory')
+      return toggleHideDialog();
     }
     if (selectedDate === undefined) {
-      return alert("Due date field is mandatory");
+      setErrorMessage('Due date Field is mandatory')
+      return toggleHideDialog();
     }
     if (selectedRequestTypeId === undefined) {
-      return alert("Request type field is mandatory");
+      setErrorMessage('Request type Field is mandatory')
+      return toggleHideDialog();
     }
     const sp = spfi().using(SPFx(props.context));
     const addItem = async (): Promise<void> => {
@@ -130,7 +144,8 @@ export const RequestForm = (
 
     if (props.isRequestManager) {
       if (selectedManagerId === undefined) {
-        return alert("Assigned Manager field is mandatory");
+        setErrorMessage('Assigned manager field is mandatory')
+        return toggleHideDialog();
       }
     }
     const editItem = async (): Promise<void> => {
@@ -186,7 +201,7 @@ export const RequestForm = (
           Assigned_x0020_ManagerId: selectedManagerId,
           RequestTypeId: selectedRequestTypeId,
           RequestArea: selectedRequestAreaChoice,
-          Status: 'In Progress'
+          Status: "In Progress",
         });
         console.log(i);
       }
@@ -368,19 +383,29 @@ export const RequestForm = (
                   </DefaultButton>
                 </div>
                 {props.isRequestManager ? (
-                    <DefaultButton
-                      onClick={() => {
-                        sendToDeliveryDepartment()
-                      }}
-                    >
-                      Send to delivery department
-                    </DefaultButton>
-                  ) : null}
+                  <DefaultButton
+                    onClick={() => {
+                      sendToDeliveryDepartment();
+                    }}
+                  >
+                    Send to delivery department
+                  </DefaultButton>
+                ) : null}
               </div>
+              
             </FocusTrapZone>
           </Popup>
         </Layer>
       )}
+      <Dialog
+        hidden={hideDialog}
+        onDismiss={toggleHideDialog}
+        dialogContentProps={dialogContentProps}
+       >
+        <DialogFooter className={styles.errorDialog}>
+          <DefaultButton onClick={toggleHideDialog} text="ok" />
+        </DialogFooter>
+     </Dialog> 
     </>
   );
 };

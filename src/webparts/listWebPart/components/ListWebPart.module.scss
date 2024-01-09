@@ -69,7 +69,10 @@
 .approved {
   background-color: #54ffac;
 }
-
+.errorDialog {
+  display: grid;
+  justify-content: center;
+}
 .modalBox {
   background: rgba(0, 0, 0, 0.2);
   bottom: 0;
