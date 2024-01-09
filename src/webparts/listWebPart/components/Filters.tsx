@@ -107,7 +107,7 @@ export const Filters = (
       <Label>Due Date</Label>
       <div className={styles.dateContainer}>
         <DatePicker
-          className={styles.filterField}
+          className={styles.dateField}
           placeholder="from"
           isMonthPickerVisible={false}
           onSelectDate={(date: Date) =>
@@ -119,7 +119,7 @@ export const Filters = (
           formatDate={onFormatDate}
         />
         <DatePicker
-          className={styles.filterField}
+          className={styles.dateField}
           placeholder="to"
           isMonthPickerVisible={false}
           onSelectDate={(date: Date) =>
@@ -134,7 +134,7 @@ export const Filters = (
       <Label>Execution Date</Label>
       <div className={styles.dateContainer}>
         <DatePicker
-          className={styles.filterField}
+          className={styles.dateField}
           placeholder="from"
           isMonthPickerVisible={false}
           onSelectDate={(date: Date) =>
@@ -148,7 +148,7 @@ export const Filters = (
           formatDate={onFormatDate}
         />
         <DatePicker
-          className={styles.filterField}
+          className={styles.dateField}
           placeholder="to"
           isMonthPickerVisible={false}
           onSelectDate={(date: Date) =>

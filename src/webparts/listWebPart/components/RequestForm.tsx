@@ -184,6 +184,8 @@ export const RequestForm = (
       if (props.currentItem !== undefined) {
         const i = await list.items.getById(props.currentItem.Id).update({
           Assigned_x0020_ManagerId: selectedManagerId,
+          RequestTypeId: selectedRequestTypeId,
+          RequestArea: selectedRequestAreaChoice,
           Status: 'In Progress'
         });
         console.log(i);
@@ -325,7 +327,7 @@ export const RequestForm = (
                   options={props.taxonomy}
                   autoComplete="on"
                   onChange={setTags}
-                  selectedKey={selectedTagsIds}
+                  defaultSelectedKey={selectedTagsIds}
                 />
                 <div className={styles.formButtonsContainer}>
                   {props.currentItem !== undefined ? (

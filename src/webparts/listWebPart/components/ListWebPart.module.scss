@@ -3,23 +3,37 @@
 .filtersContainer {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  max-width: 700px;
 }
 .filterField {
-  width: 200px;
+  width: 15em;
   margin-bottom: 10px;
   margin-right: 20px;
 }
 .dateContainer {
-  display: flex;
-  align-items: center; 
+  display: grid;
+  grid-template-columns: repeat(3, 10em);
+}
+.dateField {
+  margin-bottom: 10px;
+  margin-right: 20px;
 }
 .clearButton {
   margin-bottom: 15px;
 }
 .tableButtons {
-  max-width: 35px;
+  max-width: 25px;
 }
 
+.statusCell {
+  max-width: 90px;
+}
+.dueDateCell {
+  max-width: 90px;
+}
+.executionDateCell {
+  max-width: 100px;
+}
 .tagsCell {
   display: flex;
   flex-wrap: wrap;
@@ -37,7 +51,6 @@
 .status {
   border-radius: 3px;
   text-align: center;
-  width: fit-content;
   padding: 5px;
 }
 
@@ -81,7 +94,7 @@
 
 .formField {
   width: 300px;
-  margin-bottom: 40px;
+  margin-bottom: 1.5em;
 }
 .formButtonsContainer {
   display: flex;
@@ -101,5 +114,31 @@
 
   &:active {
     background-color: blue;
+  }
+}
+
+@media (max-width: 900px) {
+  .tagsCell {
+    display: none;
+  }
+}
+@media (max-width: 750px) {
+  .filtersContainer {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .requestTypeCell {
+    display: none;
+  }
+}
+
+@media (max-width: 680px) {
+  .requestAreaCell {
+    display: none;
+  }
+}
+
+@media (max-width: 580px) {
+  .executionDateCell {
+    display: none;
   }
 }

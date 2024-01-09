@@ -196,6 +196,12 @@ export const ListItems = (
                 className={
                   column.columnKey === "buttons"
                     ? styles.tableButtons
+                    : column.columnKey === "status" ? styles.statusCell
+                    : column.columnKey === "dueDate" ? styles.dueDateCell
+                    : column.columnKey === "executionDate" ? styles.executionDateCell
+                    : column.columnKey === "requestArea" ? styles.requestAreaCell 
+                    : column.columnKey === "requestType" ? styles.requestTypeCell 
+                    : column.columnKey === "tags" ? styles.tagsCell
                     : undefined
                 }
                 {...headerSortProps(column.columnKey)}
@@ -246,7 +252,7 @@ export const ListItems = (
                   ) : null}
                 </TableCell>
                 <TableCell>{item.Title}</TableCell>
-                <TableCell>
+                <TableCell className={styles.statusCell}>
                   {
                     <div
                       className={`${
@@ -272,23 +278,23 @@ export const ListItems = (
                       })[0].Title
                     : null}
                 </TableCell>
-                <TableCell>
+                <TableCell className={styles.dueDateCell}>
                   {moment(item.DueDate).format("YYYY-MM-DD")}
                 </TableCell>
-                <TableCell>
+                <TableCell className={styles.executionDateCell}>
                   {item.ExecutionDate !== null
                     ? moment(item.ExecutionDate).format("YYYY-MM-DD")
                     : "-"}
                 </TableCell>
                 
-                <TableCell>
+                <TableCell className={styles.requestTypeCell}>
                   {props.requestTypes[0] !== undefined
                     ? props.requestTypes.filter(
                         (type) => type.key === item.RequestTypeId
                       )[0].text
                     : null}
                 </TableCell>
-                <TableCell>{item.RequestArea}</TableCell>
+                <TableCell className={styles.requestAreaCell}>{item.RequestArea}</TableCell>
                 <TableCell className={styles.tagsCell}>
                   {item.Tags.map(
                     (
