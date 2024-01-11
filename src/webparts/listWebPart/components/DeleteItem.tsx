@@ -4,7 +4,6 @@ import { DefaultButton } from "@fluentui/react/lib/Button";
 import { useBoolean } from "@fluentui/react-hooks";
 import { IDeleteItemProps } from "./RequestForm";
 import { SPFx, spfi } from "@pnp/sp";
-
 const dialogContentProps = {
   type: DialogType.normal,
   title: "Are you sure you want to delete this request?",
@@ -42,7 +41,7 @@ export const DeleteItem = (
   return (
     <>
       <DefaultButton
-        style={{ backgroundColor: "#f00", color: '#fff' }}
+        style={{ backgroundColor: "#f00", color: "#fff" }}
         onClick={toggleHideDialog}
         text="Delete"
       />
@@ -52,15 +51,15 @@ export const DeleteItem = (
         dialogContentProps={dialogContentProps}
       >
         <DialogFooter>
-          <DefaultButton
-            style={{ backgroundColor: "#f00", color: '#fff' }}
-            onClick={() => {
-              toggleHideDialog();
-              deleteItemFunction();
-            }}
-            text="Delete Request"
-          />
-          <DefaultButton onClick={toggleHideDialog} text="Cancel" />
+            <DefaultButton
+              style={{ backgroundColor: "#f00", color: "#fff" }}
+              onClick={() => {
+                toggleHideDialog();
+                deleteItemFunction();
+              }}
+              text="Delete Request"
+            />
+            <DefaultButton onClick={toggleHideDialog} text="Cancel" />
         </DialogFooter>
       </Dialog>
     </>

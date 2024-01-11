@@ -271,7 +271,6 @@ export const ListItems = (
                 </TableCell>
                 <TableCell>
                   {item.Assigned_x0020_ManagerId !== null &&
-                  item.Assigned_x0020_ManagerId !== 0 &&
                   props.users[0] !== undefined
                     ? props.users.filter((user) => {
                         return user.Id === item.Assigned_x0020_ManagerId;

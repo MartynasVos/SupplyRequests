@@ -42,8 +42,7 @@ export const RequestForm = (
   const [errorMessage, setErrorMessage] = React.useState<string>('');
   const dialogContentProps = {
     type: DialogType.normal,
-    title: errorMessage,
-    closeButtonAriaLabel: "Close",
+    title: <div style={{textAlign: "center", color: "red", paddingLeft: '22px'}}>{errorMessage}</div>,
   };
   const [selectedManagerId, setSelectedManagerId] = React.useState<number>();
   const [selectedDate, setSelectedDate] = React.useState<Date>();
@@ -141,9 +140,8 @@ export const RequestForm = (
     const description = (
       document.getElementById("description") as HTMLInputElement
     ).value;
-
     if (props.isRequestManager) {
-      if (selectedManagerId === undefined) {
+      if (selectedManagerId === null) {
         setErrorMessage('Assigned manager field is mandatory')
         return toggleHideDialog();
       }
@@ -189,8 +187,9 @@ export const RequestForm = (
   }
   function sendToDeliveryDepartment(): void {
     if (props.isRequestManager) {
-      if (selectedManagerId === null || selectedManagerId === undefined) {
-        return alert("Assigned Manager field is mandatory");
+      if (selectedManagerId === null) {
+        setErrorMessage('Assigned manager field is mandatory')
+        return toggleHideDialog();
       }
     }
     const editItem = async (): Promise<void> => {
@@ -403,7 +402,7 @@ export const RequestForm = (
         dialogContentProps={dialogContentProps}
        >
         <DialogFooter className={styles.errorDialog}>
-          <DefaultButton onClick={toggleHideDialog} text="ok" />
+          <DefaultButton onClick={toggleHideDialog} text="Close" />
         </DialogFooter>
      </Dialog> 
     </>

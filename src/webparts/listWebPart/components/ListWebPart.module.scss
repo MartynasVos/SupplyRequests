@@ -104,7 +104,8 @@
   column-gap: 10px;
   margin-bottom: 10px;
 }
-.formButtonsContainer > *, .formButtonsContainer > *:active {
+.formButtonsContainer > *,
+.formButtonsContainer > *:active {
   width: 100%;
 }
 .primaryBtn {
