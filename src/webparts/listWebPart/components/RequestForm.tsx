@@ -140,6 +140,22 @@ export const RequestForm = (
     const description = (
       document.getElementById("description") as HTMLInputElement
     ).value;
+    if (title === "") {
+      setErrorMessage('Title Field is mandatory')
+      return toggleHideDialog();
+    }
+    if (description === "") {
+      setErrorMessage('Description Field is mandatory')
+      return toggleHideDialog();
+    }
+    if (selectedDate === undefined) {
+      setErrorMessage('Due date Field is mandatory')
+      return toggleHideDialog();
+    }
+    if (selectedRequestTypeId === undefined) {
+      setErrorMessage('Request type Field is mandatory')
+      return toggleHideDialog();
+    }
     if (props.isRequestManager) {
       if (selectedManagerId === null) {
         setErrorMessage('Assigned manager field is mandatory')
